@@ -1,0 +1,1757 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Cohorix — iGaming Intelligence</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#060810;color:#e2e8f0;font-family:system-ui,-apple-system,sans-serif;font-size:13px}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px}
+input,select,button,textarea{font-family:inherit;font-size:inherit}
+
+/* ── UPLOAD ── */
+#upload{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;position:relative;overflow:hidden}
+#upload::before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(56,189,248,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(56,189,248,0.03) 1px,transparent 1px);background-size:56px 56px;pointer-events:none}
+.logo-big{font-size:48px;font-weight:900;letter-spacing:-2px;color:#f1f5f9;text-align:center;margin-bottom:6px}
+.logo-big span{color:#38bdf8}
+.logo-sub{font-size:11px;color:#475569;letter-spacing:3px;text-transform:uppercase;margin-bottom:36px}
+.loaded-pills{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:18px;min-height:26px}
+.pill-ok{background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25);border-radius:20px;padding:3px 14px;font-size:11px;color:#22c55e}
+.drop-zone{width:min(500px,100%);border:2px dashed rgba(255,255,255,0.12);border-radius:20px;padding:40px 32px;text-align:center;cursor:pointer;transition:all .2s;background:rgba(255,255,255,0.015);position:relative}
+.drop-zone:hover,.drop-zone.drag{border-color:#38bdf8;background:rgba(56,189,248,0.05)}
+.drop-zone input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.drop-icon{font-size:36px;margin-bottom:10px}
+.drop-text{font-size:14px;color:#94a3b8;margin-bottom:5px}
+.drop-hint{font-size:11px;color:#334155}
+.fh-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:20px;max-width:500px;width:100%}
+.fh{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:12px;text-align:center}
+.fh-icon{font-size:18px;margin-bottom:5px}
+.fh-title{font-size:11px;font-weight:700;margin-bottom:2px}
+.fh-desc{font-size:9px;color:#334155;line-height:1.5}
+#uerr{margin-top:14px;color:#ef4444;font-size:12px;max-width:480px;text-align:center;min-height:18px}
+
+/* ── APP SHELL ── */
+#app{display:none;flex-direction:column;min-height:100vh}
+#app.visible{display:flex}
+
+/* ── NAV ── */
+nav{background:rgba(6,8,16,0.98);border-bottom:1px solid rgba(255,255,255,0.07);padding:0 16px;display:flex;align-items:center;flex-wrap:wrap;position:sticky;top:0;z-index:200;gap:2px}
+.nav-logo{font-size:17px;font-weight:900;letter-spacing:-0.5px;color:#f1f5f9;padding:11px 0;margin-right:16px;white-space:nowrap}
+.nav-logo span{color:#38bdf8}
+.nav-tabs{display:flex;flex:1;flex-wrap:nowrap;overflow-x:auto}
+.tab{padding:11px 8px;font-size:9px;cursor:pointer;color:#475569;border:none;border-bottom:2px solid transparent;background:none;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap;font-weight:500;transition:color .15s}
+.tab:hover{color:#94a3b8}
+.tab.active{color:#f1f5f9;border-bottom-color:#38bdf8;font-weight:700}
+.nav-right{display:flex;align-items:center;gap:5px;margin-left:8px;flex-wrap:wrap;padding:6px 0}
+.badge-loaded{background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);border-radius:12px;padding:2px 7px;font-size:9px;color:#22c55e;white-space:nowrap}
+.badge-test{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);border-radius:12px;padding:2px 7px;font-size:9px;color:#ef4444;white-space:nowrap}
+.usd-badge{font-size:9px;color:#f59e0b;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:2px 7px;white-space:nowrap}
+.btn{padding:5px 9px;border-radius:6px;font-size:9px;cursor:pointer;font-weight:600;border:none}
+.btn-add{border:1px solid rgba(56,189,248,0.3);background:rgba(56,189,248,0.08);color:#38bdf8}
+.btn-reset{border:1px solid rgba(255,255,255,0.08);background:transparent;color:#475569}
+
+/* ── MAIN ── */
+#main{padding:18px 16px;flex:1;max-width:1440px;width:100%;margin:0 auto}
+
+/* ── CARDS / GRID ── */
+.card{background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:18px}
+.clabel{font-size:9px;color:#475569;text-transform:uppercase;letter-spacing:1.5px;font-weight:600;margin-bottom:10px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g6{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.g-ab{display:grid;grid-template-columns:1fr 340px;gap:12px}
+.g-ac{display:grid;grid-template-columns:1fr 260px;gap:12px}
+.mb14{margin-bottom:14px}
+
+/* ── KPI BOXES ── */
+.kpi{background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.08);border-radius:13px;padding:15px}
+.kpi-label{font-size:9px;color:#64748b;text-transform:uppercase;letter-spacing:1.5px;font-weight:600;margin-bottom:7px}
+.kpi-val{font-size:21px;font-weight:800;letter-spacing:-0.5px;font-variant-numeric:tabular-nums}
+.kpi-sub{font-size:10px;color:#475569;margin-top:3px}
+.kpi-usd{font-size:10px;color:#f59e0b;margin-top:1px}
+
+/* ── TABLE ── */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{padding:8px 10px;text-align:left;color:#475569;font-weight:600;border-bottom:1px solid rgba(255,255,255,0.06);text-transform:uppercase;letter-spacing:.8px;font-size:8.5px;white-space:nowrap;background:rgba(0,0,0,0.15);user-select:none}
+th.sort{cursor:pointer}
+th.sort:hover{color:#94a3b8}
+th.sort.asc::after{content:" ↑"}
+th.sort.desc::after{content:" ↓"}
+td{padding:7px 10px;border-bottom:1px solid rgba(255,255,255,0.03);color:#cbd5e1;vertical-align:middle}
+.tr-click:hover{background:rgba(255,255,255,0.028)!important;cursor:pointer}
+
+/* ── MISC ── */
+.bdg{display:inline-block;font-size:8.5px;padding:2px 7px;border-radius:16px;font-weight:600;white-space:nowrap;vertical-align:middle}
+.mbar{display:inline-block;height:4px;border-radius:2px;vertical-align:middle;background:rgba(255,255,255,0.05);width:52px;overflow:hidden}
+.mbar-fill{height:100%;border-radius:2px}
+.sec-head{margin-bottom:16px}
+.sec-tag{font-size:9px;letter-spacing:3px;text-transform:uppercase;font-weight:600;margin-bottom:3px}
+.sec-h{font-size:21px;font-weight:800}
+.frow{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center}
+.finput{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:7px;padding:6px 10px;color:#e2e8f0;font-size:11px;outline:none;max-width:220px}
+.fselect{background:#080d18;border:1px solid rgba(255,255,255,0.1);border-radius:7px;padding:6px 10px;color:#e2e8f0;font-size:11px;outline:none;cursor:pointer}
+.fcount{font-size:10px;color:#475569}
+.btn-export{padding:5px 12px;border-radius:7px;font-size:10px;cursor:pointer;font-weight:600;border:1px solid rgba(34,197,94,0.3);background:rgba(34,197,94,0.08);color:#22c55e}
+.seg-card{border-radius:12px;padding:10px 12px;cursor:pointer;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.025);transition:all .15s}
+.seg-card:hover{opacity:.85}
+.crm-card{border-radius:13px;padding:14px;cursor:pointer;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.025);transition:all .15s}
+.flag-card{border-radius:11px;padding:12px 13px}
+.top8r{display:flex;align-items:center;gap:7px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.conc-box{border-radius:8px;padding:7px 11px}
+.crm-box{border-radius:10px;padding:11px 15px;margin-bottom:12px}
+
+/* ── MODAL ── */
+#modal{position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:500;display:none;align-items:center;justify-content:center;padding:12px}
+#modal.open{display:flex}
+#modal-inner{background:#090d16;border:1px solid rgba(255,255,255,0.1);border-radius:18px;width:100%;max-width:820px;max-height:94vh;overflow-y:auto;padding:22px}
+.m-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+.m-name{font-size:17px;font-weight:800;color:#f1f5f9;margin-bottom:3px}
+.m-email{font-size:11px;color:#475569;margin-bottom:7px}
+.m-sec{font-size:8.5px;letter-spacing:2px;text-transform:uppercase;font-weight:600;margin:12px 0 7px;color:#475569}
+.m-close{background:none;border:none;color:#475569;font-size:20px;cursor:pointer}
+.kpi4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:4px}
+.kp{background:rgba(255,255,255,0.03);border-radius:9px;padding:8px 10px}
+.kl{font-size:8px;color:#475569;text-transform:uppercase;letter-spacing:.8px;font-weight:600;margin-bottom:2px}
+.kv{font-size:13px;font-weight:800;font-variant-numeric:tabular-nums}
+.ku{font-size:9px;color:#f59e0b}
+
+/* ── CHAT ── */
+#chat-wrap{display:flex;flex-direction:column;height:calc(100vh - 160px);min-height:400px}
+#chat-msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;background:rgba(0,0,0,0.2);border-radius:12px;margin-bottom:12px}
+.chat-msg{max-width:85%;padding:10px 14px;border-radius:12px;font-size:12px;line-height:1.6;word-break:break-word}
+.chat-user{align-self:flex-end;background:rgba(56,189,248,0.12);border:1px solid rgba(56,189,248,0.2);border-radius:12px 12px 3px 12px}
+.chat-bot{align-self:flex-start;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:3px 12px 12px 12px}
+#chat-input-row{display:flex;gap:8px}
+#chat-input{flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:10px 14px;color:#e2e8f0;font-size:12px;outline:none;resize:none;min-height:44px;max-height:120px}
+#chat-input:focus{border-color:rgba(56,189,248,0.4)}
+#chat-send{padding:10px 18px;border-radius:10px;border:none;background:rgba(56,189,248,0.2);color:#38bdf8;font-weight:700;cursor:pointer;font-size:12px;white-space:nowrap}
+#chat-send:hover{background:rgba(56,189,248,0.3)}
+#chat-send:disabled{opacity:.4;cursor:not-allowed}
+
+/* ── COHORT ── */
+.coh-cell{border-radius:5px;padding:3px 8px;display:inline-block;min-width:52px;text-align:center;font-weight:700;font-size:11px}
+</style>
+</head>
+<body>
+
+<!-- ══ UPLOAD SCREEN ══ -->
+<div id="upload">
+  <div class="logo-big">Coho<span>rix</span></div>
+  <div class="logo-sub">iGaming Intelligence Platform</div>
+  <div class="loaded-pills" id="loaded-pills"></div>
+  <div class="drop-zone" id="drop-zone">
+    <input type="file" id="file-input" accept=".csv,.xlsx">
+    <div class="drop-icon">📂</div>
+    <div class="drop-text">Clique ou arraste — CSV ou XLSX</div>
+    <div class="drop-hint">Carregue Transações, Bets e Usuários um de cada vez</div>
+  </div>
+  <div class="fh-grid">
+    <div class="fh">
+      <div class="fh-icon">📊</div>
+      <div class="fh-title" style="color:#38bdf8">Transações</div>
+      <div class="fh-desc">CSV com User, Type, Amount, Balance Type</div>
+    </div>
+    <div class="fh">
+      <div class="fh-icon">🎰</div>
+      <div class="fh-title" style="color:#a855f7">Casino Bets</div>
+      <div class="fh-desc">XLSX com Game, Stake, Win, Test Player</div>
+    </div>
+    <div class="fh">
+      <div class="fh-icon">👤</div>
+      <div class="fh-title" style="color:#22c55e">Users List</div>
+      <div class="fh-desc">XLSX com Email, Status, Last Sign In</div>
+    </div>
+  </div>
+  <div id="uerr"></div>
+</div>
+
+<!-- ══ APP SHELL ══ -->
+<div id="app">
+  <nav>
+    <div class="nav-logo">Coho<span>rix</span></div>
+    <div class="nav-tabs" id="nav-tabs"></div>
+    <div class="nav-right" id="nav-right"></div>
+  </nav>
+  <div id="main"></div>
+</div>
+
+<!-- ══ MODAL ══ -->
+<div id="modal"><div id="modal-inner"></div></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// GLOBAL STATE
+// ═══════════════════════════════════════════════════════════
+var S = {
+  txn:   null,   // parsed transactions array
+  bets:  null,   // parsed bets array
+  users: null,   // parsed users array
+  data:  null,   // computed analytics object
+  tab:   'overview',
+  usdRate: null,
+  usdDate: ''
+};
+
+// UI filter states
+var PS   = { sort:'deps', dir:-1, seg:'ALL', search:'', chan:'ALL' };
+var GS   = { sort:'stake', dir:-1, view:'games', search:'' };
+var CRMS = { filter:'ALL' };
+var CAS  = { search:'', chan:'ALL' };
+var chatHistory = [];
+var TODAY = new Date('2026-03-11');
+
+// ═══════════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════════
+var PC = ['#38bdf8','#22c55e','#a855f7','#f59e0b','#f97316','#ef4444','#34d399','#e879f9'];
+
+function BRL(n){ return 'R$\u00a0'+Math.abs(n||0).toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0}); }
+function USD(n){ if(!S.usdRate) return ''; return '$\u00a0'+(Math.abs(n||0)/S.usdRate).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0}); }
+function PCT(n){ return (n||0).toFixed(1)+'%'; }
+function GC(n) { return n>=0 ? '#22c55e' : '#ef4444'; }
+function ESC(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function CLAMP(v,lo,hi){ return Math.min(hi,Math.max(lo,v)); }
+
+function badge(txt,color){
+  return '<span class="bdg" style="background:'+color+'1a;color:'+color+';border:1px solid '+color+'30">'+ESC(txt)+'</span>';
+}
+function mbar(val,max,color){
+  var p = CLAMP(Math.abs(val)/(Math.abs(max)||1)*100,0,100);
+  return '<span class="mbar"><span class="mbar-fill" style="width:'+p+'%;background:'+color+'"></span></span>';
+}
+function kpiBox(label,val,sub,color,usd,accent){
+  return '<div class="kpi"'+(accent?' style="border-color:'+accent+'"':'')+'>'+
+    '<div class="kpi-label">'+ESC(label)+'</div>'+
+    '<div class="kpi-val" style="color:'+color+'">'+ESC(String(val))+'</div>'+
+    (sub  ? '<div class="kpi-sub">'+ESC(String(sub))+'</div>' : '')+
+    (usd && S.usdRate ? '<div class="kpi-usd">'+ESC(usd)+'</div>' : '')+
+  '</div>';
+}
+function sched(fn){ setTimeout(fn,40); }
+function unescXml(s){
+  return s.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"')
+          .replace(/&#(\d+);/g,function(_,n){ return String.fromCharCode(parseInt(n)); });
+}
+
+// ═══════════════════════════════════════════════════════════
+// BCB — cotação USD/BRL do Banco Central
+// ═══════════════════════════════════════════════════════════
+function fetchBCB(){
+  function tryDate(d){
+    var url = 'https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/CotacaoDolarDia(dataCotacao=@dataCotacao)?@dataCotacao=\'' + d + '\'&$top=1&$format=json&$select=cotacaoVenda';
+    return fetch(url)
+      .then(function(r){ return r.json(); })
+      .then(function(j){
+        if(j.value && j.value.length){
+          S.usdRate = j.value[0].cotacaoVenda;
+          S.usdDate = d;
+          if(S.data){ renderNav(); renderTab(); }
+        }
+      });
+  }
+  var now = new Date();
+  var fmt = function(d){
+    return String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+'-'+d.getFullYear();
+  };
+  tryDate(fmt(now)).catch(function(){
+    var y = new Date(now); y.setDate(y.getDate()-1);
+    return tryDate(fmt(y));
+  }).catch(function(){});
+}
+
+// ═══════════════════════════════════════════════════════════
+// XLSX ASYNC PARSER  (DecompressionStream — zero libs)
+// ═══════════════════════════════════════════════════════════
+async function parseXLSXAsync(buf){
+  var bytes  = new Uint8Array(buf);
+  var entries = await extractZip(bytes);
+  var ssXml  = entries['xl/sharedStrings.xml'] || '';
+  var shXml  = entries['xl/worksheets/sheet1.xml'] || '';
+  if(!shXml) return null;
+
+  // shared strings
+  var ss = [];
+  (ssXml.match(/<si>[\s\S]*?<\/si>/g) || []).forEach(function(si){
+    var parts = (si.match(/<t[^>]*>([^<]*)<\/t>/g) || [])
+                  .map(function(t){ return t.replace(/<t[^>]*>/,'').replace(/<\/t>/,''); });
+    ss.push(unescXml(parts.join('')));
+  });
+
+  // rows
+  var rows = [];
+  (shXml.match(/<row[\s\S]*?<\/row>/g) || []).forEach(function(rowXml){
+    var cells = rowXml.match(/<c[\s\S]*?<\/c>/g) || [];
+    var maxC = 0, cd = [];
+    cells.forEach(function(cXml){
+      var ref = (cXml.match(/r="([A-Z]+)\d+"/) || ['','A'])[1];
+      var ci  = ref.split('').reduce(function(a,c){ return a*26+(c.charCodeAt(0)-64); },0) - 1;
+      if(ci < 0) ci = 0;
+      var t   = (cXml.match(/\bt="([^"]*)"/) || [])[1];
+      var v   = (cXml.match(/<v>([^<]*)<\/v>/) || [])[1] || '';
+      var val = t === 's' ? (ss[parseInt(v)] || '') : v;
+      cd.push({col:ci, val:val});
+      if(ci > maxC) maxC = ci;
+    });
+    if(cd.length){
+      var arr = new Array(maxC+1).fill('');
+      cd.forEach(function(c){ if(c.col < arr.length) arr[c.col] = c.val; });
+      rows.push(arr);
+    }
+  });
+  return rows;
+}
+
+async function extractZip(bytes){
+  var entries = {}, i = 0, queue = [];
+  while(i < bytes.length - 4){
+    if(bytes[i]===0x50 && bytes[i+1]===0x4b && bytes[i+2]===0x03 && bytes[i+3]===0x04){
+      var method  = bytes[i+8]  | (bytes[i+9] <<8);
+      var cSize   = bytes[i+18] | (bytes[i+19]<<8) | (bytes[i+20]<<16) | (bytes[i+21]<<24);
+      var fnLen   = bytes[i+26] | (bytes[i+27]<<8);
+      var exLen   = bytes[i+28] | (bytes[i+29]<<8);
+      var nm      = new TextDecoder().decode(bytes.slice(i+30, i+30+fnLen));
+      var ds      = i+30+fnLen+exLen;
+      var data    = bytes.slice(ds, ds+cSize);
+      if(nm.endsWith('.xml')) queue.push({name:nm, method:method, data:data});
+      i = ds + cSize;
+    } else i++;
+  }
+  for(var qi=0; qi<queue.length; qi++){
+    var q = queue[qi];
+    try{
+      if(q.method === 0){
+        entries[q.name] = new TextDecoder().decode(q.data);
+      } else if(q.method === 8){
+        var decoded = null;
+        // Strategy 1: Response.pipeThrough — most reliable on mobile Chrome
+        try{
+          var blob = new Blob([q.data]);
+          var ds3  = new DecompressionStream('deflate-raw');
+          var piped = blob.stream().pipeThrough(ds3);
+          var ab = await new Response(piped).arrayBuffer();
+          decoded = new TextDecoder().decode(new Uint8Array(ab));
+        }catch(e1){
+          // Strategy 2: writer/reader pattern
+          try{
+            var ds2 = new DecompressionStream('deflate-raw');
+            var w = ds2.writable.getWriter(), rr = ds2.readable.getReader();
+            w.write(q.data); w.close();
+            var ch = [], tot = 0;
+            while(true){ var rd = await rr.read(); if(rd.done) break; ch.push(rd.value); tot += rd.value.length; }
+            var mg = new Uint8Array(tot); var off = 0;
+            ch.forEach(function(c){ mg.set(c,off); off+=c.length; });
+            decoded = new TextDecoder().decode(mg);
+          }catch(e2){ /* entry skipped */ }
+        }
+        if(decoded) entries[q.name] = decoded;
+      }
+    }catch(e){}
+  }
+  return entries;
+}
+
+// ═══════════════════════════════════════════════════════════
+// CSV PARSER
+// ═══════════════════════════════════════════════════════════
+function parseCSVRow(line){
+  var out=[], cur='', inQ=false;
+  for(var i=0; i<line.length; i++){
+    var c = line[i];
+    if(c === '"')          { inQ = !inQ; }
+    else if(c===',' && !inQ){ out.push(cur.trim()); cur=''; }
+    else                   { cur += c; }
+  }
+  out.push(cur.trim());
+  return out;
+}
+
+// ═══════════════════════════════════════════════════════════
+// FILE TYPE DETECTION & PARSING
+// ═══════════════════════════════════════════════════════════
+function detectCSV(text){
+  // Strip UTF-8 BOM if present
+  if(text.charCodeAt(0)===0xFEFF) text = text.slice(1);
+  var lines = text.split('\n').map(function(l){ return l.trim(); }).filter(Boolean);
+  for(var hi=0; hi<Math.min(15,lines.length); hi++){
+    var l = lines[hi];
+    // Transactions: must have Balance Type + Amount + Type
+    if(l.indexOf('Balance Type')>-1 && l.indexOf('Amount')>-1 && l.indexOf('Type')>-1){
+      var hdr = parseCSVRow(l), col = {};
+      hdr.forEach(function(h,i){ col[h.trim()] = i; });
+      var rows = [];
+      for(var i=hi+1; i<lines.length; i++){
+        var p = parseCSVRow(lines[i]);
+        if(p.length < 5) continue;
+        function g(k){ return col[k]!=null && col[k]<p.length ? p[col[k]].replace(/^"|"$/g,'').trim() : ''; }
+        var u = g('User'); if(!u || u==='User') continue;
+        rows.push({
+          user:     u,
+          agent:    g('Agent'),
+          type:     g('Type'),
+          refCode:  g('Ref Code'),
+          date:     g('Date'),
+          balType:  g('Balance Type'),
+          amount:   parseFloat(g('Amount')) || 0,
+          refId:    g('Reference ID'),
+          currency: g('Currency'),
+          balAfter: parseFloat(g('Balance After')) || 0
+        });
+      }
+      if(rows.length > 5) return { kind:'transactions', rows };
+    }
+  }
+  return null;
+}
+
+function detectXLSXRows(rows){
+  if(!rows || !rows.length) return null;
+  for(var hi=0; hi<Math.min(10,rows.length); hi++){
+    var r = rows[hi], j = r.join(',');
+
+    // ── BETS (multi-column) ──
+    if(j.indexOf('Game')>-1 && j.indexOf('Stake')>-1 && j.indexOf('Test Player')>-1){
+      var col={}; r.forEach(function(h,i){ col[String(h).trim()]=i; });
+      function gb(p,k){ return col[k]!=null && col[k]<p.length ? String(p[col[k]]||'').trim() : ''; }
+      var bets=[];
+      for(var i=hi+1; i<rows.length; i++){
+        var p=rows[i], u=gb(p,'User'); if(!u||u==='User') continue;
+        bets.push({
+          user:       u,
+          refCode:    gb(p,'Ref Code'),
+          game:       gb(p,'Game'),
+          provider:   gb(p,'Provider'),
+          aggregator: gb(p,'Aggregator'),
+          date:       gb(p,'Date'),
+          stake:      parseFloat(gb(p,'Stake'))||0,
+          bonusBet:   gb(p,'Bonus bet').toLowerCase()==='true',
+          testPlayer: gb(p,'Test Player').toLowerCase()==='true',
+          status:     gb(p,'Status'),
+          win:        parseFloat(gb(p,'Win'))||0,
+          ip:         gb(p,'IP Address'),
+          agent:      gb(p,'Agent')
+        });
+      }
+      if(bets.length > 5) return { kind:'bets', bets };
+    }
+
+    // ── BETS (single-column CSV-in-XLSX) ──
+    if(r.length===1 && String(r[0]).indexOf('Stake')>-1 && String(r[0]).indexOf('User')>-1){
+      var hdr2=parseCSVRow(String(r[0])), col2={};
+      hdr2.forEach(function(h,i){ col2[h.trim()]=i; });
+      function gc2(p,k){ return col2[k]!=null && col2[k]<p.length ? p[col2[k]].trim() : ''; }
+      var bets2=[];
+      for(var i=hi+1; i<rows.length; i++){
+        if(!rows[i][0]) continue;
+        var p=parseCSVRow(String(rows[i][0]));
+        var u=gc2(p,'User'); if(!u) continue;
+        bets2.push({
+          user:       u,
+          refCode:    gc2(p,'Ref Code'),
+          game:       gc2(p,'Game'),
+          provider:   gc2(p,'Provider'),
+          aggregator: gc2(p,'Aggregator'),
+          date:       gc2(p,'Date'),
+          stake:      parseFloat(gc2(p,'Stake'))||0,
+          bonusBet:   gc2(p,'Bonus bet').toLowerCase()==='true',
+          testPlayer: gc2(p,'Test Player').toLowerCase()==='true',
+          status:     gc2(p,'Status'),
+          win:        parseFloat(gc2(p,'Win'))||0,
+          ip:         gc2(p,'IP Address'),
+          agent:      gc2(p,'Agent')
+        });
+      }
+      if(bets2.length > 5) return { kind:'bets', bets:bets2 };
+    }
+
+    // ── USERS ──
+    if(j.indexOf('Email')>-1 && j.indexOf('Registration Date')>-1){
+      var col3={}; r.forEach(function(h,i){ col3[String(h).trim()]=i; });
+      function gu(p,k){ return col3[k]!=null && col3[k]<p.length ? String(p[col3[k]]||'').trim() : ''; }
+      var users=[];
+      for(var i=hi+1; i<rows.length; i++){
+        var p=rows[i], em=gu(p,'Email'); if(!em||em==='Email') continue;
+        users.push({
+          email:            em,
+          fullName:         (gu(p,'First Name')+' '+gu(p,'Last Name')).trim(),
+          refCode:          gu(p,'Ref Code'),
+          status:           gu(p,'Status'),
+          group:            gu(p,'Group'),
+          mainBalance:      parseFloat(gu(p,'Main Balance'))||0,
+          firstDeposit:     parseFloat(gu(p,'First Deposit'))||0,
+          verification:     gu(p,'Verification'),
+          registrationDate: gu(p,'Registration Date'),
+          deactivationDate: gu(p,'Deactivation Date'),
+          lastSignIn:       gu(p,'Last Sign In'),
+          affiliateProvider:gu(p,'Affiliate Provider'),
+          source:           gu(p,'Source')
+        });
+      }
+      if(users.length > 5) return { kind:'users', users };
+    }
+  }
+  return null;
+}
+
+// ═══════════════════════════════════════════════════════════
+// FILE HANDLER
+// ═══════════════════════════════════════════════════════════
+function handleFile(file){
+  if(!file) return;
+  document.getElementById('uerr').textContent = '';
+  var ext = file.name.split('.').pop().toLowerCase();
+
+  if(ext === 'csv'){
+    var reader = new FileReader();
+    reader.onload = function(e){
+      try{
+        var result = detectCSV(e.target.result);
+        if(!result){ document.getElementById('uerr').textContent = '⚠ CSV não reconhecido. Verifique colunas: User, Type, Amount, Balance Type.'; return; }
+        if(result.kind === 'transactions') S.txn = result.rows;
+        S.data = null; // will be recomputed
+        onFileLoaded();
+      }catch(ex){ document.getElementById('uerr').textContent = '⚠ Erro: '+ex.message; }
+    };
+    reader.readAsText(file,'UTF-8');
+
+  } else if(ext === 'xlsx' || ext === 'xls'){
+    var reader2 = new FileReader();
+    reader2.onload = function(e){
+      parseXLSXAsync(e.target.result).then(function(rows){
+        if(!rows || !rows.length){ document.getElementById('uerr').textContent = '⚠ XLSX vazio ou não legível. Tente salvar como .xlsx no Excel/Sheets.'; return; }
+        var result = detectXLSXRows(rows);
+        if(!result){
+          var sample = rows.slice(0,6).map(function(r){return r.slice(0,4).join('|');}).join(' // ');
+          document.getElementById('uerr').textContent = '⚠ XLSX não reconhecido. Colunas encontradas: '+sample;
+          return;
+        }
+        if(result.kind === 'bets')  S.bets  = result.bets;
+        if(result.kind === 'users') S.users = result.users;
+        S.data = null;
+        onFileLoaded();
+      }).catch(function(err){ document.getElementById('uerr').textContent = '⚠ Erro XLSX: '+err.message; });
+    };
+    reader2.readAsArrayBuffer(file);
+  } else {
+    document.getElementById('uerr').textContent = '⚠ Formato não suportado. Use .csv ou .xlsx';
+  }
+}
+
+function onFileLoaded(){
+  updatePills();
+  // Compute analytics if we have at least transactions or bets
+  if(S.txn || S.bets || S.users){
+    S.data = compute(S.txn, S.bets, S.users);
+    showApp();
+  }
+}
+
+function updatePills(){
+  var loaded = [S.txn&&'📊 Transações', S.bets&&'🎰 Apostas', S.users&&'👤 Usuários'].filter(Boolean);
+  document.getElementById('loaded-pills').innerHTML = loaded.map(function(k){
+    return '<div class="pill-ok">✓ '+k+'</div>';
+  }).join('');
+}
+
+function showApp(){
+  document.getElementById('upload').style.display = 'none';
+  document.getElementById('app').classList.add('visible');
+  renderNav();
+  renderTab();
+  bindNav();
+}
+
+function reset(){
+  S.txn=null; S.bets=null; S.users=null; S.data=null; S.tab='overview';
+  chatHistory=[];
+  document.getElementById('upload').style.display='';
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('loaded-pills').innerHTML='';
+}
+
+// ── DRAG & DROP ──
+var dz = document.getElementById('drop-zone');
+dz.addEventListener('dragover',  function(e){ e.preventDefault(); dz.classList.add('drag'); });
+dz.addEventListener('dragleave', function(){ dz.classList.remove('drag'); });
+dz.addEventListener('drop', function(e){ e.preventDefault(); dz.classList.remove('drag'); handleFile(e.dataTransfer.files[0]); });
+document.getElementById('file-input').addEventListener('change', function(e){ handleFile(e.target.files[0]); });
+document.getElementById('modal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
+
+// ── INIT ──
+fetchBCB();
+
+// ═══════════════════════════════════════════════════════════
+// PART 2 — ANALYTICS ENGINE
+// ═══════════════════════════════════════════════════════════
+
+// ── Segmentos e Flags ──────────────────────────────────────
+var SEGS = {
+  whale:             { label:'Whale',        color:'#f59e0b', icon:'🐋' },
+  high_value:        { label:'High Value',   color:'#a855f7', icon:'💎' },
+  mid_value:         { label:'Mid Value',    color:'#38bdf8', icon:'⭐' },
+  low_value:         { label:'Low Value',    color:'#64748b', icon:'·'  },
+  registered_no_dep: { label:'Sem Dep.',     color:'#ef4444', icon:'○'  },
+  deactivated:       { label:'Desativado',   color:'#475569', icon:'✕'  },
+  unregistered:      { label:'N/Cadastrado', color:'#334155', icon:'?'  }
+};
+var FMAP = {
+  bonus_hunter:          { label:'Bonus Hunter',       color:'#f97316' },
+  withdrawal_excess:     { label:'Saque Excessivo',    color:'#ef4444' },
+  rtp_extreme:           { label:'RTP Extremo',        color:'#ef4444' },
+  rtp_high_volume:       { label:'RTP Alto+Volume',    color:'#f97316' },
+  single_game:           { label:'1 Jogo/Alto Vol',    color:'#eab308' },
+  fragmented_withdrawal: { label:'Saque Fracionado',   color:'#eab308' },
+  test_withdrawal:       { label:'TEST c/ Saque ⚠',   color:'#ef4444' }
+};
+
+// ── Helpers de data ────────────────────────────────────────
+function parseDate(s){
+  if(!s) return null;
+  // Formato MM/DD/YYYY HH:MM:SS  (padrão da plataforma)
+  var m = s.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if(!m) return null;
+  var mo = parseInt(m[1]), dy = parseInt(m[2]), y = parseInt(m[3]);
+  var ti = (s.match(/(\d{2}:\d{2}:\d{2})/) || [])[1] || '';
+  return new Date(y+'-'+String(mo).padStart(2,'0')+'-'+String(dy).padStart(2,'0')+(ti?'T'+ti:''));
+}
+function daysBetween(d1,d2){
+  if(!d1||!d2) return null;
+  return Math.floor((d2 - d1) / 86400000);
+}
+
+// ── Identificação de players TEST ─────────────────────────
+// Exclui de TODAS as métricas: Ref Code = "TEST" ou Test Player = true
+function isTest(r){
+  return (r.refCode && r.refCode.toUpperCase() === 'TEST') || r.testPlayer;
+}
+
+// ═══════════════════════════════════════════════════════════
+// COMPUTE — motor principal
+//
+// Fórmulas confirmadas (versão final):
+//   Casino GGR     = Bet − BetReverse − Win − FreeSpinWin
+//   Sport GGR      = Bet − Bonus Bets − Win
+//   Saque Efetivo  = Withdrawals − RefundRejectedWithdraw
+//   W/D Ratio      = Saque Efetivo ÷ Deposits
+//   NGR            = Casino GGR − WagerBonusRedeem
+//   Gateway fee    = (dep_cnt + with_cnt − refund_cnt) × R$0,60
+//                    + (dep_amt + saque_efetivo) × 1%
+// ═══════════════════════════════════════════════════════════
+function compute(txnRaw, betsRaw, usersRaw){
+
+  // Accumulators — totais globais
+  var tDeps=0, tWithsEff=0, tBet=0, tBetRev=0, tWin=0, tFreeSpinWin=0, tWBR=0;
+  var tDepCnt=0, tWithCnt=0, tRefRejCnt=0;
+
+  // Maps por jogador e canal
+  var pMap={}, chMap={}, dayMap={}, gmMap={}, prMap={};
+
+  // ── 1. TRANSAÇÕES ──────────────────────────────────────
+  (txnRaw||[]).forEach(function(r){
+    if(isTest(r))          return;   // exclui TEST
+    if(r.balType !== 'Real') return; // só saldo Real
+
+    var u  = r.user;
+    var rc = r.refCode || '(direto)';
+
+    // Init player map
+    if(!pMap[u]) pMap[u] = {
+      email:u, deps:0, withs:0, withsEff:0, depCnt:0, withCnt:0, refRejCnt:0,
+      bet:0, betRev:0, win:0, winRev:0, fsWin:0, wbr:0,
+      rc:'', dates:[], firstDepDate:null, firstDepAmt:0, txns:[]
+    };
+    var p = pMap[u];
+    if(!p.rc && r.refCode) p.rc = r.refCode;
+
+    // Init channel map
+    if(!chMap[rc]) chMap[rc] = { name:rc, deps:0, withs:0, bet:0, win:0, us:{} };
+    chMap[rc].us[u] = 1;
+
+    // Daily map
+    var dt = parseDate(r.date);
+    if(dt){
+      var ds = dt.toISOString().slice(0,10);
+      p.dates.push(ds);
+      if(!dayMap[ds]) dayMap[ds] = { date:ds, deps:0, bet:0, win:0, us:{} };
+      dayMap[ds].us[u] = 1;
+    }
+
+    p.txns.push(r);
+
+    switch(r.type){
+
+      case 'Deposit':
+        p.deps    += r.amount; p.depCnt++;
+        tDeps     += r.amount; tDepCnt++;
+        chMap[rc].deps += r.amount;
+        if(dt) dayMap[dt.toISOString().slice(0,10)].deps += r.amount;
+        if(!p.firstDepDate || dt < p.firstDepDate){
+          p.firstDepDate = dt; p.firstDepAmt = r.amount;
+        }
+        break;
+
+      case 'Withdrawal':
+        p.withs    += r.amount; p.withCnt++;
+        p.withsEff += r.amount;          // antes do desconto de refund
+        tWithsEff  += r.amount; tWithCnt++;
+        chMap[rc].withs += r.amount;
+        break;
+
+      case 'RefundRejectedWithdraw':
+        // Saque Efetivo = Withdrawals − RefundRejectedWithdraw
+        p.withsEff -= r.amount;
+        tWithsEff  -= r.amount;
+        tRefRejCnt++;
+        break;
+
+      case 'Bet':
+        p.bet += r.amount; tBet += r.amount;
+        chMap[rc].bet += r.amount;
+        if(dt) dayMap[dt.toISOString().slice(0,10)].bet += r.amount;
+        break;
+
+      case 'BetReverse':
+        // Casino GGR subtrai BetReverse
+        p.betRev += r.amount; tBetRev += r.amount;
+        break;
+
+      case 'Win':
+        p.win += r.amount;
+        chMap[rc].win += r.amount;
+        if(dt) dayMap[dt.toISOString().slice(0,10)].win += r.amount;
+        break;
+
+      case 'WinReverse':
+        p.winRev += r.amount; // aumenta GGR (win removido)
+        break;
+
+      case 'FreeSpinWin':
+        // Casino GGR subtrai FreeSpinWin
+        p.fsWin += r.amount; tFreeSpinWin += r.amount;
+        break;
+
+      case 'WagerBonusRedeem':
+        // NGR = Casino GGR − WagerBonusRedeem
+        p.wbr += r.amount; tWBR += r.amount;
+        break;
+    }
+  });
+
+  // ── 2. BETS (arquivo de apostas) ───────────────────────
+  var tBetsStake=0, tBetsWin=0;
+  var bpMap = {};
+
+  (betsRaw||[]).forEach(function(b){
+    if(b.testPlayer) return; // exclui TEST
+
+    var u = b.user;
+    if(!bpMap[u]) bpMap[u] = { stake:0, win:0, cnt:0, bonusStake:0, gs:{}, ss:{} };
+    var bp = bpMap[u];
+    bp.stake += b.stake; bp.win += b.win; bp.cnt++;
+    bp.gs[b.game] = 1;
+    if(b.date) bp.ss[b.date.slice(0,10)] = 1;
+    if(b.bonusBet) bp.bonusStake += b.stake;
+    tBetsStake += b.stake; tBetsWin += b.win;
+
+    // Mapa de jogos
+    var gm = b.game || 'Unknown';
+    if(!gmMap[gm]) gmMap[gm] = { name:gm, stake:0, win:0, cnt:0, us:{}, prov:b.provider, agg:b.aggregator };
+    gmMap[gm].stake += b.stake; gmMap[gm].win += b.win; gmMap[gm].cnt++;
+    gmMap[gm].us[u] = 1;
+
+    // Mapa de providers
+    var pr = b.provider || 'Unknown';
+    if(!prMap[pr]) prMap[pr] = { name:pr, stake:0, win:0, cnt:0, gs:{} };
+    prMap[pr].stake += b.stake; prMap[pr].win += b.win; prMap[pr].cnt++;
+    prMap[pr].gs[gm] = 1;
+  });
+
+  // ── 3. USERS MAP ───────────────────────────────────────
+  var uMap = {};
+  (usersRaw||[]).forEach(function(u){ uMap[u.email] = u; });
+
+  // ── 4. PLAYER PROFILES ─────────────────────────────────
+  // União de todos os e-mails conhecidos
+  var allE = {};
+  Object.keys(pMap).forEach(function(e){ allE[e]=1; });
+  Object.keys(bpMap).forEach(function(e){ allE[e]=1; });
+  (usersRaw||[]).forEach(function(u){ allE[u.email]=1; });
+
+  var players = [];
+
+  Object.keys(allE).forEach(function(email){
+    var t = pMap[email]  || {};
+    var b = bpMap[email] || {};
+    var u = uMap[email]  || {};
+
+    // Ignora jogadores com Ref Code = TEST
+    if(t.rc && t.rc.toUpperCase()==='TEST') return;
+    // Ignora registros completamente vazios
+    if(!t.deps && !b.stake && !u.email) return;
+
+    // ── Financeiro por player ──
+    var deps     = t.deps     || 0;
+    var withsEff = t.withsEff || 0;
+
+    // Casino GGR = Bet − BetReverse − Win − FreeSpinWin
+    var casinoGGR = (t.bet||0) - (t.betRev||0) - (t.win||0) - (t.fsWin||0);
+
+    // NGR = Casino GGR − WagerBonusRedeem
+    var ngr    = casinoGGR - (t.wbr||0);
+    var margin = deps > 0 ? casinoGGR / deps * 100 : 0;
+
+    // W/D Ratio = Saque Efetivo ÷ Depósitos
+    var wdr = deps > 0 ? withsEff / deps : 0;
+
+    // Bets
+    var betsStake = b.stake || 0;
+    var betsWin   = b.win   || 0;
+    var rtp       = betsStake > 0 ? betsWin / betsStake * 100 : 0;
+
+    // Atividade
+    var dates         = (t.dates||[]).slice().sort();
+    var lastSeen      = dates.length ? dates[dates.length-1] : '';
+    var activeDays    = new Set(t.dates||[]).size;
+    var regDate       = u.registrationDate ? parseDate(u.registrationDate) : null;
+    var lastSignInDt  = u.lastSignIn ? parseDate(u.lastSignIn) : null;
+    // Usa Last Sign In (do arquivo de usuários) como indicador principal de inatividade
+    var daysSinceLogin = lastSignInDt
+      ? daysBetween(lastSignInDt, TODAY)
+      : (lastSeen ? daysBetween(new Date(lastSeen), TODAY) : 999);
+
+    var deactivated = u.status==='Deactivated' || !!u.deactivationDate;
+    var hasFTD      = !!(t.firstDepDate || u.firstDeposit > 0);
+
+    // ── Cohort D1 / D7 / D30 ──
+    var d1=false, d7=false, d30=false;
+    if(regDate && (t.dates||[]).length){
+      var e1  = new Date(regDate); e1.setDate(e1.getDate()+1);
+      var e7  = new Date(regDate); e7.setDate(e7.getDate()+7);
+      var e30 = new Date(regDate); e30.setDate(e30.getDate()+30);
+      var actSet = new Set(t.dates||[]);
+      var actArr = Array.from(actSet);
+      d1  = actArr.some(function(d){ return new Date(d) <= e1;  });
+      d7  = actArr.some(function(d){ return new Date(d) <= e7;  });
+      d30 = actArr.some(function(d){ return new Date(d) <= e30; });
+    }
+
+    // ── Segmentação ──
+    var seg = 'unregistered';
+    if(deactivated)          seg = 'deactivated';
+    else if(deps >= 50000)   seg = 'whale';
+    else if(deps >= 10000)   seg = 'high_value';
+    else if(deps >= 1000)    seg = 'mid_value';
+    else if(deps > 0)        seg = 'low_value';
+    else if(u.email)         seg = 'registered_no_dep';
+
+    // ── Risk Flags ──
+    var flags = [];
+    var testWith = (u.refCode && u.refCode.toUpperCase()==='TEST' && (t.withs||0)>0);
+
+    if(betsWin > betsStake * 1.3  && betsStake > 5000)   flags.push('bonus_hunter');
+    if(withsEff > deps * 1.3      && deps > 0)            flags.push('withdrawal_excess');
+    if(rtp > 130                  && betsStake > 5000)    flags.push('rtp_extreme');
+    if(rtp > 110                  && betsStake > 10000)   flags.push('rtp_high_volume');
+    if(Object.keys(b.gs||{}).length === 1 && betsStake > 10000) flags.push('single_game');
+    if((t.withCnt||0) >= 4)                               flags.push('fragmented_withdrawal');
+    if(testWith)                                           flags.push('test_withdrawal');
+
+    // ── Churn ──
+    // Player em churn: inativo > 14 dias, tem histórico de depósito, não desativado
+    var isChurn = (daysSinceLogin > 14 && deps > 0 && !deactivated);
+
+    // ── CRM Action ──
+    var crm = null;
+    if(flags.indexOf('bonus_hunter')>-1 || flags.indexOf('rtp_extreme')>-1 || testWith)
+      crm = { type:'block_review', label:'🚫 Revisar & Bloquear', color:'#ef4444' };
+    else if(seg==='whale'      && daysSinceLogin > 7)
+      crm = { type:'vip_call',    label:'📞 Ligar VIP Inativo',   color:'#f59e0b' };
+    else if(seg==='high_value' && daysSinceLogin > 14)
+      crm = { type:'reactivate',  label:'💎 Oferta VIP',          color:'#a855f7' };
+    else if(seg==='mid_value'  && daysSinceLogin > 21)
+      crm = { type:'free_spin',   label:'🎰 Free Spins',          color:'#38bdf8' };
+    else if(seg==='registered_no_dep')
+      crm = { type:'ftd_bonus',   label:'🎁 Bônus 1º Depósito',   color:'#22c55e' };
+    else if(daysSinceLogin > 30 && deps > 0)
+      crm = { type:'sms_reeng',   label:'📱 SMS Re-engajamento',  color:'#64748b' };
+
+    players.push({
+      email:email, fullName:u.fullName||'', refCode:t.rc||u.refCode||'—',
+      status:u.status||'', verification:u.verification||'',
+      mainBalance:u.mainBalance||0,
+      registrationDate:u.registrationDate||'',
+      lastSignIn:u.lastSignIn||'',
+      deactivationDate:u.deactivationDate||'',
+      deactivated:deactivated, source:u.source||'',
+      // Financeiro
+      deps:deps, withs:t.withs||0, withsEff:withsEff,
+      depCnt:t.depCnt||0, withCnt:t.withCnt||0,
+      casinoGGR:casinoGGR, ngr:ngr, margin:margin, wdr:wdr,
+      ticket: (t.depCnt||0) > 0 ? deps / t.depCnt : 0,
+      bet:t.bet||0, betRev:t.betRev||0, win:t.win||0,
+      fsWin:t.fsWin||0, wbr:t.wbr||0,
+      // Bets
+      betsStake:betsStake, betsWin:betsWin, rtp:rtp,
+      bonusStake:b.bonusStake||0,
+      gameCnt:Object.keys(b.gs||{}).length,
+      sessionCnt:Object.keys(b.ss||{}).length,
+      // Datas
+      firstDepAmt:t.firstDepAmt||0, firstDepDate:t.firstDepDate,
+      hasFTD:hasFTD, regDate:regDate,
+      lastSeen:lastSeen, daysSinceLogin:daysSinceLogin, activeDays:activeDays,
+      // Cohort
+      d1:d1, d7:d7, d30:d30,
+      // Classificação
+      segment:seg, flags:flags, risk:flags.length,
+      crm:crm, isChurn:isChurn,
+      // Raw txns para modal
+      txns:t.txns||[]
+    });
+  });
+
+  // ── 5. CANAIS ──────────────────────────────────────────
+  var channels = Object.values(chMap).map(function(c){
+    var cp   = players.filter(function(p){ return p.refCode === c.name; });
+    var ftd  = cp.filter(function(p){ return p.hasFTD; }).length;
+    var cGGR = c.bet - c.win;
+    var maxDep = cp.length ? Math.max.apply(null, cp.map(function(p){ return p.deps; })) : 0;
+    return {
+      name:c.name,
+      playerCount: Object.keys(c.us).length,
+      ftd:ftd, deps:c.deps, withs:c.withs,
+      cGGR:cGGR,
+      margin:    c.deps>0 ? cGGR/c.deps*100 : 0,
+      ggrPerFTD: ftd>0    ? cGGR/ftd        : 0,
+      ticket:    Object.keys(c.us).length>0 ? c.deps/Object.keys(c.us).length : 0,
+      conv:      Object.keys(c.us).length>0 ? ftd/Object.keys(c.us).length*100 : 0,
+      concentration: c.deps>0 ? maxDep/c.deps*100 : 0
+    };
+  }).sort(function(a,b){ return b.deps - a.deps; });
+
+  // ── 6. JOGOS ───────────────────────────────────────────
+  var games = Object.values(gmMap).map(function(g){
+    var rtp = g.stake>0 ? g.win/g.stake*100 : 0;
+    var ggr = g.stake - g.win;
+    var uc  = Object.keys(g.us).length;
+    var fl  = [];
+    if(rtp > 110 && g.stake > 1000) fl.push('rtp_high');
+    if(uc <= 2   && g.stake > 5000) fl.push('concentrated');
+    return { name:g.name, stake:g.stake, win:g.win, cnt:g.cnt, rtp:rtp, ggr:ggr, users:uc, prov:g.prov, agg:g.agg, flags:fl };
+  }).sort(function(a,b){ return b.stake - a.stake; });
+
+  var providers = Object.values(prMap).map(function(p){
+    return {
+      name:p.name, stake:p.stake, win:p.win, cnt:p.cnt,
+      ggr: p.stake-p.win,
+      rtp: p.stake>0 ? p.win/p.stake*100 : 0,
+      games: Object.keys(p.gs).length
+    };
+  }).sort(function(a,b){ return b.stake - a.stake; });
+
+  // ── 7. SÉRIE DIÁRIA ────────────────────────────────────
+  var daily = Object.values(dayMap).map(function(d){
+    return { date:d.date, deps:d.deps, ggr:d.bet-d.win, users:Object.keys(d.us).length };
+  }).sort(function(a,b){ return a.date > b.date ? 1 : -1; });
+
+  // ── 8. CADASTROS / REG STATS ───────────────────────────
+  var regStats = null;
+  if(usersRaw && usersRaw.length){
+    var csm = {};
+    usersRaw.forEach(function(u){
+      var rc = u.refCode || '(sem canal)';
+      if(!csm[rc]) csm[rc] = { name:rc, total:0, ftd:0, ftdAmt:0, active:0, deact:0 };
+      csm[rc].total++;
+      var tp = players.find(function(p){ return p.email===u.email; });
+      if(tp && tp.hasFTD){ csm[rc].ftd++; csm[rc].ftdAmt += tp.firstDepAmt; }
+      if(u.status==='Active')      csm[rc].active++;
+      if(u.status==='Deactivated') csm[rc].deact++;
+    });
+    var chanStats = Object.values(csm).map(function(c){
+      return { name:c.name, total:c.total, ftd:c.ftd, ftdAmt:c.ftdAmt, active:c.active, deact:c.deact,
+               conv: c.total>0 ? c.ftd/c.total*100 : 0,
+               avgFTD: c.ftd>0 ? c.ftdAmt/c.ftd : 0 };
+    }).sort(function(a,b){ return b.total - a.total; });
+    var verCnts = {};
+    usersRaw.forEach(function(u){ verCnts[u.verification] = (verCnts[u.verification]||0)+1; });
+    var ftdCnt  = players.filter(function(p){ return p.hasFTD; }).length;
+    var deactCnt = usersRaw.filter(function(u){ return u.status==='Deactivated'; }).length;
+    regStats = {
+      users:usersRaw, chanStats:chanStats,
+      total:usersRaw.length, ftd:ftdCnt,
+      deact:deactCnt, noFtd:usersRaw.length-ftdCnt,
+      conv: usersRaw.length>0 ? ftdCnt/usersRaw.length*100 : 0,
+      verCnts:verCnts
+    };
+  }
+
+  // ── 9. COHORT por mês de cadastro ──────────────────────
+  var cohortMap = {};
+  players.forEach(function(p){
+    if(!p.regDate) return;
+    var mo = p.regDate.toISOString().slice(0,7); // YYYY-MM
+    if(!cohortMap[mo]) cohortMap[mo] = { month:mo, total:0, d1:0, d7:0, d30:0, dep:0 };
+    cohortMap[mo].total++;
+    if(p.d1)  cohortMap[mo].d1++;
+    if(p.d7)  cohortMap[mo].d7++;
+    if(p.d30) cohortMap[mo].d30++;
+    cohortMap[mo].dep += p.deps;
+  });
+  var cohorts = Object.values(cohortMap).sort(function(a,b){ return a.month > b.month ? 1:-1; });
+
+  // ── 10. TOTAIS GLOBAIS CORRETOS ────────────────────────
+  // Recalcula a partir dos players (já excluídos os TEST)
+  var realCasinoGGR = players.reduce(function(a,p){ return a + p.casinoGGR; }, 0);
+  var realNGR       = realCasinoGGR - tWBR;
+
+  // Gateway: (dep_cnt + with_cnt − refund_cnt) × R$0,60 + (dep_amt + saque_efetivo) × 1%
+  var gatewayCnt  = tDepCnt + tWithCnt - tRefRejCnt;
+  var gatewayCost = gatewayCnt * 0.60 + (tDeps + tWithsEff) * 0.01;
+
+  return {
+    players:players, channels:channels, games:games,
+    providers:providers, daily:daily, regStats:regStats, cohorts:cohorts,
+
+    // totais
+    tDeps:tDeps, tWithsEff:tWithsEff,
+    tBet:tBet, tBetRev:tBetRev, tFreeSpinWin:tFreeSpinWin, tWBR:tWBR,
+    tCasinoGGR: realCasinoGGR,
+    tNGR:       realNGR,
+    wdRatio:    tDeps>0 ? tWithsEff/tDeps : 0,
+    gatewayCnt: gatewayCnt,
+    gatewayCost:gatewayCost,
+    tBetsStake: tBetsStake,
+    tBetsWin:   tBetsWin,
+    tDepCnt:tDepCnt, tWithCnt:tWithCnt, tRefRejCnt:tRefRejCnt,
+
+    // shortcuts
+    fraud: players.filter(function(p){ return p.risk >= 2; }),
+    txnRows: txnRaw||[]
+  };
+}
+
+// ═══════════════════════════════════════════════════════════
+// CANVAS CHARTS  (zero libs — Canvas API puro)
+// ═══════════════════════════════════════════════════════════
+function drawBar(id, data, key, colorFn, lkey){
+  var canvas = document.getElementById(id);
+  if(!canvas || !data || !data.length) return;
+  var W = canvas.parentElement.offsetWidth || 500, H = canvas.height;
+  canvas.width = W;
+  var ctx = canvas.getContext('2d'); ctx.clearRect(0,0,W,H);
+
+  var vals = data.map(function(d){ return d[key]||0; });
+  var maxV = Math.max.apply(null, vals.map(Math.abs)) || 1;
+  var minV = Math.min.apply(null, vals);
+  var allPos = minV >= 0;
+
+  var pL=46, pR=8, pT=8, pB=30;
+  var cw=W-pL-pR, ch=H-pT-pB;
+  var bsp = cw / data.length;
+  var bw  = Math.max(3, bsp - 3);
+  var zy  = allPos ? pT+ch : pT + (maxV / (maxV - minV)) * ch;
+
+  // Grid lines
+  ctx.strokeStyle='rgba(255,255,255,0.04)'; ctx.lineWidth=1;
+  for(var i=0; i<=4; i++){
+    var y = pT + i/4*ch;
+    ctx.beginPath(); ctx.moveTo(pL,y); ctx.lineTo(pL+cw,y); ctx.stroke();
+    var v2 = allPos ? maxV*(1-i/4) : maxV - i/4*(maxV-minV);
+    ctx.fillStyle='#475569'; ctx.font='9px system-ui'; ctx.textAlign='right';
+    ctx.fillText(Math.abs(v2)>=1000 ? (v2/1000).toFixed(0)+'k' : v2.toFixed(0), pL-4, y+3);
+  }
+  // Zero line
+  if(!allPos){
+    ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(pL,zy); ctx.lineTo(pL+cw,zy); ctx.stroke();
+  }
+  // Bars
+  data.forEach(function(d,i){
+    var v  = d[key]||0;
+    var bH = allPos ? Math.abs(v)/maxV*ch : Math.abs(v)/(maxV-minV)*ch;
+    var x  = pL + i*bsp + (bsp-bw)/2;
+    var y2 = v >= 0 ? zy-bH : zy;
+    ctx.fillStyle = typeof colorFn==='function' ? colorFn(v) : (colorFn||'#38bdf8');
+    ctx.beginPath();
+    if(ctx.roundRect) ctx.roundRect(x, y2, bw, Math.max(2,bH), [2]);
+    else              ctx.rect(x, y2, bw, Math.max(2,bH));
+    ctx.fill();
+    if(data.length <= 18){
+      ctx.fillStyle='#475569'; ctx.font='8px system-ui'; ctx.textAlign='center';
+      ctx.fillText(String(d[lkey||'name']||d.date||'').slice(0,8), x+bw/2, H-8);
+    }
+  });
+}
+
+function drawPie(id, data){
+  var canvas = document.getElementById(id);
+  if(!canvas || !data || !data.length) return;
+  var W=canvas.width, H=canvas.height;
+  var ctx = canvas.getContext('2d'); ctx.clearRect(0,0,W,H);
+  var tot = data.reduce(function(a,d){ return a+(d.value||0); },0);
+  if(!tot) return;
+  var cx=W/2, cy=H/2, r=Math.min(W,H)/2-6, ir=r*0.45, start=-Math.PI/2;
+  data.forEach(function(d,i){
+    var angle = (d.value/tot)*Math.PI*2;
+    ctx.fillStyle = d.color || PC[i%PC.length];
+    ctx.beginPath();
+    ctx.moveTo(cx+ir*Math.cos(start), cy+ir*Math.sin(start));
+    ctx.arc(cx,cy,r,start,start+angle);
+    ctx.arc(cx,cy,ir,start+angle,start,true);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle='#060810'; ctx.lineWidth=1.5; ctx.stroke();
+    start += angle;
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// EXPORT CSV
+// ═══════════════════════════════════════════════════════════
+function exportCSV(rows, filename){
+  if(!rows || !rows.length) return;
+  var keys = Object.keys(rows[0]);
+  var csv  = keys.join(',') + '\n' + rows.map(function(r){
+    return keys.map(function(k){
+      var v = String(r[k]||'');
+      return (v.indexOf(',')>-1 || v.indexOf('"')>-1) ? '"'+v.replace(/"/g,'""')+'"' : v;
+    }).join(',');
+  }).join('\n');
+  var a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,\uFEFF' + encodeURIComponent(csv);
+  a.download = filename; a.click();
+}
+
+function exportPlayers(list){
+  exportCSV(list.map(function(p){
+    return {
+      email: p.email, nome: p.fullName, canal: p.refCode,
+      depositos:      p.deps.toFixed(2),
+      saques_efetivos:p.withsEff.toFixed(2),
+      casino_ggr:     p.casinoGGR.toFixed(2),
+      ngr:            p.ngr.toFixed(2),
+      margem_pct:     p.margin.toFixed(1),
+      wd_ratio:       (p.wdr*100).toFixed(1),
+      rtp_bets:       p.rtp.toFixed(1),
+      segmento:       p.segment,
+      inativo_dias:   p.daysSinceLogin < 999 ? p.daysSinceLogin : '',
+      acao_crm:       p.crm ? p.crm.label : '',
+      flags:          p.flags.join('|')
+    };
+  }), 'cohorix_players.csv');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PART 3 — NAV + TAB ROUTING + DASHBOARD + PLAYERS + CAMPANHAS + CRM
+// ═══════════════════════════════════════════════════════════
+
+var TABS = [
+  { id:'overview',  label:'Dashboard', icon:'◈' },
+  { id:'players',   label:'Players',   icon:'♟' },
+  { id:'campaigns', label:'Campanhas', icon:'◉' },
+  { id:'crm',       label:'CRM',       icon:'⚡' },
+  { id:'churn',     label:'Churn',     icon:'↩' },
+  { id:'cohort',    label:'Cohort',    icon:'◷' },
+  { id:'risk',      label:'Risco',     icon:'⚑' },
+  { id:'games',     label:'Jogos',     icon:'🎰' },
+  { id:'users',     label:'Cadastros', icon:'◎' },
+  { id:'chat',      label:'Perguntar', icon:'💬' }
+];
+
+function renderNav(){
+  var loaded = [S.txn&&'Txns', S.bets&&'Bets', S.users&&'Users'].filter(Boolean);
+  var testCnt = S.data
+    ? (S.data.txnRows||[]).filter(function(r){ return r.refCode && r.refCode.toUpperCase()==='TEST'; }).length
+    : 0;
+  document.getElementById('nav-tabs').innerHTML = TABS.map(function(t){
+    return '<button class="tab'+(S.tab===t.id?' active':'')+'" data-tab="'+t.id+'">'+t.icon+' '+t.label+'</button>';
+  }).join('');
+  document.getElementById('nav-right').innerHTML =
+    loaded.map(function(k){ return '<span class="badge-loaded">✓ '+k+'</span>'; }).join('')+
+    (testCnt ? '<span class="badge-test">TEST: '+testCnt+' excl.</span>' : '')+
+    (S.usdRate ? '<span class="usd-badge">$ 1 = R$ '+S.usdRate.toFixed(2)+' (BCB)</span>' : '<span class="usd-badge">💱 USD…</span>')+
+    '<button class="btn btn-add" id="btn-add">+ Arquivo</button>'+
+    '<button class="btn btn-reset" id="btn-reset">↺</button>';
+}
+
+function renderTab(){
+  if(!S.data && S.tab !== 'chat'){
+    document.getElementById('main').innerHTML = '<div style="padding:60px;text-align:center;color:#475569">Carregue ao menos um arquivo para começar.</div>';
+    return;
+  }
+  var fn = { overview:renderOverview, players:renderPlayers, campaigns:renderCampaigns, crm:renderCRM,
+             churn:renderChurn, cohort:renderCohort, risk:renderRisk, games:renderGames,
+             users:renderUsers, chat:renderChat }[S.tab];
+  if(fn) fn();
+}
+
+function bindNav(){
+  document.getElementById('nav-tabs').addEventListener('click', function(e){
+    var t = e.target.closest('[data-tab]');
+    if(t){ S.tab = t.dataset.tab; renderNav(); renderTab(); bindNav(); }
+  });
+  var ba = document.getElementById('btn-add');
+  if(ba) ba.addEventListener('click', function(){
+    var inp = document.createElement('input'); inp.type='file'; inp.accept='.csv,.xlsx';
+    inp.addEventListener('change', function(){ handleFile(inp.files[0]); }); inp.click();
+  });
+  var br = document.getElementById('btn-reset');
+  if(br) br.addEventListener('click', reset);
+}
+
+function closeModal(){ document.getElementById('modal').classList.remove('open'); }
+
+// ── DASHBOARD ────────────────────────────────────────────
+function renderOverview(){
+  var d = S.data;
+  var betsRTP   = d.tBetsStake>0 ? d.tBetsWin/d.tBetsStake*100 : 0;
+  var depositors = d.players.filter(function(p){ return p.deps>0; }).length;
+  var sorted    = d.players.slice().sort(function(a,b){ return b.deps-a.deps; });
+  var maxDep    = sorted.length ? sorted[0].deps : 1;
+  var top1pct   = d.tDeps>0 ? (sorted[0]?sorted[0].deps:0)/d.tDeps*100 : 0;
+  var top5pct   = d.tDeps>0 ? sorted.slice(0,5).reduce(function(a,p){ return a+p.deps; },0)/d.tDeps*100 : 0;
+
+  var segArr = Object.keys(SEGS).map(function(k){
+    return { name:SEGS[k].label, value:d.players.filter(function(p){ return p.segment===k; }).length, color:SEGS[k].color };
+  }).filter(function(x){ return x.value>0; });
+
+  var top8 = sorted.slice(0,8).map(function(p,i){
+    var s = SEGS[p.segment]||SEGS.unregistered;
+    return '<div class="top8r">'+
+      '<span style="font-size:9px;color:#334155;width:16px;flex-shrink:0">#'+(i+1)+'</span>'+
+      '<span style="font-size:10px;color:#94a3b8;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+ESC(p.fullName||p.email.split('@')[0])+'</span>'+
+      badge(s.icon+' '+s.label, s.color)+
+      '<span style="font-size:11px;font-weight:700;color:#22c55e;min-width:72px;text-align:right">'+BRL(p.deps)+'</span>'+
+      mbar(p.deps, maxDep, '#22c55e')+
+    '</div>';
+  }).join('');
+
+  var segLegend = segArr.map(function(x){
+    return '<div style="display:flex;align-items:center;gap:5px;font-size:10px;margin-bottom:3px">'+
+      '<div style="width:8px;height:8px;border-radius:50%;background:'+x.color+';flex-shrink:0"></div>'+
+      '<span style="color:#64748b">'+ESC(x.name)+' <b style="color:'+x.color+'">'+x.value+'</b></span></div>';
+  }).join('');
+
+  var ggrAccent = d.tCasinoGGR>=0 ? 'rgba(34,197,94,0.25)' : 'rgba(239,68,68,0.25)';
+
+  document.getElementById('main').innerHTML =
+  '<div>'+
+  '<div class="sec-head"><div class="sec-tag" style="color:#38bdf8">Visão Executiva</div><div class="sec-h">Dashboard Principal</div></div>'+
+  '<div class="g4 mb14">'+
+    kpiBox('Casino GGR',(d.tCasinoGGR>=0?'+':'')+BRL(d.tCasinoGGR),'Bet−BetRev−Win−FreeSpinWin',GC(d.tCasinoGGR),USD(d.tCasinoGGR),ggrAccent)+
+    kpiBox('NGR',(d.tNGR>=0?'+':'')+BRL(d.tNGR),'Casino GGR − WagerBonusRedeem',GC(d.tNGR),USD(d.tNGR))+
+    kpiBox('Depósitos',BRL(d.tDeps),depositors+' depositantes · '+d.tDepCnt+' txns','#22c55e',USD(d.tDeps))+
+    kpiBox('Saque Efetivo',BRL(d.tWithsEff),'Withdrawals − RefundRejected','#94a3b8',USD(d.tWithsEff))+
+  '</div>'+
+  '<div class="g4 mb14">'+
+    kpiBox('W/D Ratio',PCT(d.wdRatio*100),'Saque Efetivo ÷ Depósitos',d.wdRatio<1?'#22c55e':'#ef4444')+
+    kpiBox('Volume Apostas',BRL(d.tBetsStake),'RTP: '+PCT(betsRTP),'#a855f7',USD(d.tBetsStake))+
+    kpiBox('Custo Gateway',BRL(d.gatewayCost),d.gatewayCnt+' txns × R$0,60 + 1% vol','#f97316',USD(d.gatewayCost))+
+    kpiBox('Alertas Risco',String(d.fraud.length),'players c/ ≥2 flags',d.fraud.length?'#ef4444':'#22c55e')+
+  '</div>'+
+  '<div class="g-ab mb14">'+
+    '<div class="card"><div class="clabel">GGR Diário</div><div style="width:100%"><canvas id="c-daily" height="200"></canvas></div></div>'+
+    '<div class="card"><div class="clabel">Top 8 Players por Depósito</div>'+top8+'</div>'+
+  '</div>'+
+  '<div class="g2">'+
+    '<div class="card"><div class="clabel">GGR por Canal (Top 10)</div><div style="width:100%"><canvas id="c-ch" height="190"></canvas></div></div>'+
+    '<div class="card"><div class="clabel">Segmentação de Players</div>'+
+      '<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">'+
+        '<canvas id="c-seg" width="120" height="120"></canvas><div>'+segLegend+'</div>'+
+      '</div>'+
+      '<div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06)">'+
+        '<div class="clabel">Concentração de Depósitos</div>'+
+        '<div style="display:flex;gap:8px;margin-top:6px">'+
+          '<div class="conc-box" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2)"><div style="font-size:9px;color:#ef4444">TOP 1</div><div style="font-size:16px;font-weight:800;color:#ef4444">'+PCT(top1pct)+'</div></div>'+
+          '<div class="conc-box" style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2)"><div style="font-size:9px;color:#f59e0b">TOP 5</div><div style="font-size:16px;font-weight:800;color:#f59e0b">'+PCT(top5pct)+'</div></div>'+
+          '<div class="conc-box" style="background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.2)"><div style="font-size:9px;color:#a855f7">WagerBonus</div><div style="font-size:13px;font-weight:800;color:#a855f7">'+BRL(d.tWBR)+'</div></div>'+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+  '</div>'+
+  '</div>';
+
+  sched(function(){
+    drawBar('c-daily', d.daily, 'ggr', function(v){ return v>=0?'#22c55e':'#ef4444'; }, 'date');
+    drawBar('c-ch', d.channels.slice(0,10).map(function(c){ return { name:c.name.slice(0,10), ggr:c.cGGR }; }), 'ggr', function(v){ return v>=0?'#22c55e':'#ef4444'; });
+    drawPie('c-seg', segArr);
+  });
+}
+
+// ── PLAYERS ──────────────────────────────────────────────
+function renderPlayers(){
+  var d = S.data;
+  var segCards = '<div class="g6 mb14">';
+  Object.keys(SEGS).forEach(function(k){
+    var s=SEGS[k], cnt=d.players.filter(function(p){ return p.segment===k; }).length;
+    var dep=d.players.filter(function(p){ return p.segment===k; }).reduce(function(a,p){ return a+p.deps; },0);
+    var on=PS.seg===k;
+    segCards += '<div class="seg-card" data-seg="'+k+'" style="background:'+(on?s.color+'15':'rgba(255,255,255,0.025)')+';border-color:'+(on?s.color+'50':'rgba(255,255,255,0.07)')+'">'+
+      '<div style="font-size:13px;margin-bottom:2px">'+s.icon+'</div>'+
+      '<div style="font-size:8px;color:'+s.color+';text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:2px">'+s.label+'</div>'+
+      '<div style="font-size:18px;font-weight:800;color:'+s.color+'">'+cnt+'</div>'+
+      '<div style="font-size:9px;color:#475569;margin-top:1px">'+BRL(dep)+'</div></div>';
+  });
+  segCards += '</div>';
+
+  var chans = Array.from(new Set(d.players.map(function(p){ return p.refCode; }))).filter(Boolean).sort();
+  var list  = d.players.filter(function(p){
+    var q=PS.search.toLowerCase();
+    if(q && p.email.toLowerCase().indexOf(q)===-1 && (p.fullName||'').toLowerCase().indexOf(q)===-1) return false;
+    if(PS.seg!=='ALL' && p.segment!==PS.seg) return false;
+    if(PS.chan!=='ALL' && p.refCode!==PS.chan) return false;
+    return true;
+  }).sort(function(a,b){ return ((b[PS.sort]||0)-(a[PS.sort]||0))*PS.dir; });
+
+  function sh(k,lbl){ var cls='sort'+(PS.sort===k?(PS.dir===-1?' desc':' asc'):''); return '<th class="'+cls+'" data-ps="'+k+'">'+lbl+'</th>'; }
+
+  var rows = list.map(function(p){
+    var s=SEGS[p.segment]||SEGS.unregistered;
+    return '<tr class="tr-click" data-pl="'+ESC(p.email)+'">'+
+      '<td><div style="font-weight:600;color:#f1f5f9">'+ESC(p.fullName||p.email.split('@')[0])+'</div>'+
+      (p.fullName?'<div style="font-size:9px;color:#475569;overflow:hidden;text-overflow:ellipsis;max-width:180px">'+ESC(p.email)+'</div>':'')+
+      '<div style="font-size:8px;color:#334155">'+ESC(p.refCode)+'</div></td>'+
+      '<td style="color:#22c55e;font-weight:700">'+BRL(p.deps)+'</td>'+
+      '<td style="color:'+GC(p.withsEff)+'">'+BRL(p.withsEff)+'</td>'+
+      '<td style="color:'+GC(p.casinoGGR)+';font-weight:700">'+(p.casinoGGR>=0?'+':'−')+BRL(Math.abs(p.casinoGGR))+'</td>'+
+      '<td style="color:'+GC(p.margin)+'">'+PCT(p.margin)+'</td>'+
+      '<td style="color:'+(p.rtp>120?'#ef4444':p.rtp>105?'#f97316':'#22c55e')+'">'+(p.betsStake>0?PCT(p.rtp):'—')+'</td>'+
+      '<td style="color:'+(p.daysSinceLogin>14?'#ef4444':p.daysSinceLogin>7?'#f59e0b':'#22c55e')+'">'+(p.daysSinceLogin<999?p.daysSinceLogin+'d':'—')+'</td>'+
+      '<td>'+badge(s.icon+' '+s.label,s.color)+'</td>'+
+      '<td>'+(p.crm?badge(p.crm.label,p.crm.color):'<span style="color:#334155;font-size:9px">—</span>')+'</td>'+
+    '</tr>';
+  }).join('');
+
+  document.getElementById('main').innerHTML =
+  '<div>'+
+  '<div class="sec-head"><div class="sec-tag" style="color:#a855f7">Perfil de Jogadores</div><div class="sec-h">Player Intelligence</div></div>'+
+  segCards+
+  '<div class="frow">'+
+    '<input class="finput" id="p-search" placeholder="🔍 Buscar nome ou e-mail…" value="'+ESC(PS.search)+'">'+
+    '<select class="fselect" id="p-chan"><option value="ALL">Todos os canais</option>'+
+    chans.map(function(c){ return '<option value="'+ESC(c)+'"'+(PS.chan===c?' selected':'')+'>'+ESC(c)+'</option>'; }).join('')+
+    '</select>'+
+    '<button class="btn-export" id="p-export">↓ CSV</button>'+
+    '<span class="fcount" style="margin-left:auto">'+list.length+' players</span>'+
+  '</div>'+
+  '<div class="card"><div class="tbl-wrap"><table>'+
+    '<thead><tr><th>Jogador</th>'+sh('deps','Depósitos')+sh('withsEff','Saque Efetivo')+sh('casinoGGR','Casino GGR')+sh('margin','Margem')+sh('rtp','RTP Bets')+sh('daysSinceLogin','Inativo')+'<th>Segmento</th><th>Ação CRM</th></tr></thead>'+
+    '<tbody>'+rows+'</tbody></table></div></div></div>';
+}
+
+// ── CAMPANHAS ────────────────────────────────────────────
+function renderCampaigns(){
+  var d=S.data, ch=d.channels;
+  var maxDep=ch.length ? Math.max.apply(null,ch.map(function(c){ return c.deps; })) : 1;
+  var sorted=ch.slice().sort(function(a,b){ return b.cGGR-a.cGGR; });
+  var best=sorted[0]||{}, worst=sorted[sorted.length-1]||{};
+
+  var rows=ch.map(function(c,i){
+    return '<tr style="background:'+(i%2?'rgba(255,255,255,0.012)':'transparent')+'">'+
+      '<td style="font-weight:700;color:#38bdf8">'+ESC(c.name)+'</td>'+
+      '<td style="text-align:center">'+c.playerCount+'</td>'+
+      '<td style="text-align:center;color:#22c55e;font-weight:600">'+c.ftd+'</td>'+
+      '<td style="text-align:center;color:'+(c.conv>30?'#22c55e':c.conv>10?'#f59e0b':'#ef4444')+';font-weight:600">'+PCT(c.conv)+'</td>'+
+      '<td style="color:#22c55e">'+BRL(c.deps)+' '+mbar(c.deps,maxDep,'#22c55e')+'</td>'+
+      '<td style="color:'+GC(c.cGGR)+';font-weight:700">'+(c.cGGR>=0?'+':'−')+BRL(Math.abs(c.cGGR))+'</td>'+
+      '<td style="color:'+GC(c.margin)+'">'+PCT(c.margin)+'</td>'+
+      '<td style="color:'+(c.ggrPerFTD>=0?'#22c55e':'#ef4444')+'">'+(c.ftd>0?BRL(c.ggrPerFTD):'—')+'</td>'+
+      '<td style="color:#f59e0b">'+BRL(c.ticket)+'</td>'+
+      '<td>'+mbar(c.concentration,100,c.concentration>80?'#ef4444':'#f59e0b')+
+        ' <span style="font-size:9px;color:#64748b">'+PCT(c.concentration)+'</span></td>'+
+    '</tr>';
+  }).join('');
+
+  document.getElementById('main').innerHTML =
+  '<div>'+
+  '<div class="sec-head"><div class="sec-tag" style="color:#22c55e">Performance de Aquisição</div><div class="sec-h">Campaign Analytics</div></div>'+
+  '<div class="g4 mb14">'+
+    kpiBox('Canais Ativos',String(ch.length),'','#38bdf8')+
+    kpiBox('Melhor GGR',best.name||'—',best.cGGR!=null?BRL(best.cGGR):'','#22c55e')+
+    kpiBox('Pior GGR',worst.name||'—',worst.cGGR!=null?BRL(worst.cGGR):'','#ef4444')+
+    kpiBox('W/D Ratio Global',PCT(d.wdRatio*100),'Saque Efetivo ÷ Depósitos',d.wdRatio<1?'#22c55e':'#ef4444')+
+  '</div>'+
+  '<div class="card mb14"><div class="clabel">Depósitos por Canal (Top 12)</div><div style="width:100%"><canvas id="c-chdep" height="200"></canvas></div></div>'+
+  '<div class="card">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'+
+      '<div class="clabel" style="margin:0">Detalhamento por Canal</div>'+
+      '<button class="btn-export" id="ch-export">↓ CSV</button>'+
+    '</div>'+
+    '<div class="tbl-wrap"><table>'+
+      '<thead><tr><th>Canal</th><th>Players</th><th>FTD</th><th>Conv%</th><th>Depósitos</th><th>GGR</th><th>Margem</th><th>GGR/FTD</th><th>Ticket</th><th>Conc.</th></tr></thead>'+
+      '<tbody>'+rows+'</tbody></table></div></div></div>';
+
+  sched(function(){
+    drawBar('c-chdep', ch.slice(0,12).map(function(c){ return { name:c.name.slice(0,10), deps:c.deps }; }), 'deps', '#38bdf8');
+  });
+}
+
+// ── CRM ──────────────────────────────────────────────────
+function renderCRM(){
+  var d=S.data;
+  var ACTIONS=[
+    {type:'block_review',label:'Revisar & Bloquear',icon:'🚫',color:'#ef4444',desc:'Fraude · RTP extremo · TEST c/ saque'},
+    {type:'vip_call',    label:'Ligar VIP Inativo', icon:'📞',color:'#f59e0b',desc:'Whale sem login > 7 dias'},
+    {type:'reactivate',  label:'Oferta VIP',        icon:'💎',color:'#a855f7',desc:'High Value > 14 dias inativo'},
+    {type:'free_spin',   label:'Free Spins',         icon:'🎰',color:'#38bdf8',desc:'Mid Value > 21 dias inativo'},
+    {type:'ftd_bonus',   label:'Bônus 1º Depósito', icon:'🎁',color:'#22c55e',desc:'Cadastrado sem depósito'},
+    {type:'sms_reeng',   label:'SMS Re-engajamento',icon:'📱',color:'#64748b',desc:'Qualquer player > 30 dias inativo'}
+  ];
+
+  var cards='<div class="g3 mb14">';
+  ACTIONS.forEach(function(a){
+    var cnt=d.players.filter(function(p){ return p.crm&&p.crm.type===a.type; }).length;
+    var on=CRMS.filter===a.type;
+    cards+='<div class="crm-card" data-crm="'+a.type+'" style="background:'+(on?a.color+'15':'rgba(255,255,255,0.025)')+';border-color:'+(on?a.color+'50':'rgba(255,255,255,0.07)')+'">'+
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:7px">'+
+        '<span style="font-size:20px">'+a.icon+'</span>'+
+        '<span style="font-size:22px;font-weight:800;color:'+a.color+'">'+cnt+'</span>'+
+      '</div>'+
+      '<div style="font-size:12px;font-weight:700;color:'+a.color+';margin-bottom:2px">'+ESC(a.label)+'</div>'+
+      '<div style="font-size:10px;color:#475569">'+ESC(a.desc)+'</div></div>';
+  });
+  cards+='</div>';
+
+  var list=d.players.filter(function(p){ return !!p.crm; });
+  if(CRMS.filter!=='ALL') list=list.filter(function(p){ return p.crm.type===CRMS.filter; });
+  var curAction=ACTIONS.find(function(a){ return a.type===CRMS.filter; })||{label:'Todos c/ ação'};
+
+  var rows=list.map(function(p){
+    var s=SEGS[p.segment]||SEGS.unregistered;
+    var lc=p.daysSinceLogin>30?'#ef4444':p.daysSinceLogin>14?'#f59e0b':'#22c55e';
+    return '<tr class="tr-click" data-pl="'+ESC(p.email)+'">'+
+      '<td><div style="font-weight:600;color:#f1f5f9">'+ESC(p.fullName||p.email.split('@')[0])+'</div>'+
+      (p.fullName?'<div style="font-size:9px;color:#475569">'+ESC(p.email)+'</div>':'')+
+      '</td><td>'+badge(s.icon+' '+s.label,s.color)+'</td>'+
+      '<td style="color:#22c55e;font-weight:700">'+BRL(p.deps)+'</td>'+
+      '<td style="color:'+GC(p.casinoGGR)+';font-weight:700">'+(p.casinoGGR>=0?'+':'−')+BRL(Math.abs(p.casinoGGR))+'</td>'+
+      '<td style="color:'+lc+'">'+(p.daysSinceLogin<999?p.daysSinceLogin+'d':'—')+'</td>'+
+      '<td>'+badge(p.crm.label,p.crm.color)+'</td></tr>';
+  }).join('');
+
+  document.getElementById('main').innerHTML =
+  '<div>'+
+  '<div class="sec-head"><div class="sec-tag" style="color:#f59e0b">Ações Automáticas</div><div class="sec-h">CRM Automation</div></div>'+
+  cards+
+  '<div class="card">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'+
+      '<span class="clabel" style="margin:0">'+(CRMS.filter==='ALL'?'Todos c/ ação':curAction.label)+' ('+list.length+')</span>'+
+      '<div style="display:flex;gap:6px">'+
+        (CRMS.filter!=='ALL'?'<button id="crm-clear" style="font-size:9px;color:#64748b;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:5px;padding:3px 9px;cursor:pointer">✕ Limpar</button>':'')+
+        '<button class="btn-export" id="crm-export">↓ CSV</button>'+
+      '</div>'+
+    '</div>'+
+    '<div class="tbl-wrap"><table>'+
+      '<thead><tr><th>Jogador</th><th>Segmento</th><th>Depósitos</th><th>Casino GGR</th><th>Inativo há</th><th>Ação</th></tr></thead>'+
+      '<tbody>'+rows+'</tbody></table></div></div></div>';
+}
+
+// ── EVENT DELEGATION ─────────────────────────────────────
+document.getElementById('main').addEventListener('click', function(e){
+  var row=e.target.closest('[data-pl]');
+  if(row){ openModal(row.dataset.pl); return; }
+  var seg=e.target.closest('[data-seg]');
+  if(seg){ PS.seg=PS.seg===seg.dataset.seg?'ALL':seg.dataset.seg; renderPlayers(); return; }
+  var ps=e.target.closest('[data-ps]');
+  if(ps){ var k=ps.dataset.ps; if(PS.sort===k) PS.dir=-PS.dir; else{PS.sort=k;PS.dir=-1;} renderPlayers(); return; }
+  var crm=e.target.closest('[data-crm]');
+  if(crm){ CRMS.filter=CRMS.filter===crm.dataset.crm?'ALL':crm.dataset.crm; renderCRM(); return; }
+  if(e.target.id==='crm-clear'){ CRMS.filter='ALL'; renderCRM(); return; }
+  if(e.target.id==='p-export'  && S.data){ exportPlayers(S.data.players); return; }
+  if(e.target.id==='crm-export'&& S.data){
+    exportPlayers(S.data.players.filter(function(p){ return p.crm&&(CRMS.filter==='ALL'||p.crm.type===CRMS.filter); }));
+    return;
+  }
+  if(e.target.id==='ch-export' && S.data){
+    exportCSV(S.data.channels.map(function(c){
+      return {canal:c.name,players:c.playerCount,ftd:c.ftd,conv_pct:c.conv.toFixed(1),
+              depositos:c.deps.toFixed(2),ggr:c.cGGR.toFixed(2),margem:c.margin.toFixed(1),
+              ggr_por_ftd:c.ggrPerFTD.toFixed(2),ticket:c.ticket.toFixed(2)};
+    }), 'cohorix_canais.csv');
+    return;
+  }
+});
+
+document.body.addEventListener('input', function(e){
+  if(e.target.id==='p-search'){ PS.search=e.target.value; renderPlayers(); }
+});
+document.body.addEventListener('change', function(e){
+  if(e.target.id==='p-chan'){ PS.chan=e.target.value; renderPlayers(); }
+});
+
+// ═══════════════════════════════════════════════════════════
+// PART 4 — CHURN · COHORT · RISCO · JOGOS · CADASTROS · CHAT · MODAL
+// ═══════════════════════════════════════════════════════════
+
+// ── CHURN ────────────────────────────────────────────────
+function renderChurn(){
+  var d=S.data;
+  var list=d.players.filter(function(p){return p.isChurn&&!p.deactivated;}).sort(function(a,b){return b.deps-a.deps;});
+  var lostVal=list.reduce(function(a,p){return a+p.deps;},0);
+  var avgDays=list.length?Math.round(list.reduce(function(a,p){return a+(p.daysSinceLogin<999?p.daysSinceLogin:0);},0)/list.length):0;
+  var highRisk=list.filter(function(p){return p.segment==='whale'||p.segment==='high_value';}).length;
+  var buckets=[
+    {label:'14–30 dias',color:'#f59e0b',players:list.filter(function(p){return p.daysSinceLogin>=14&&p.daysSinceLogin<=30;})},
+    {label:'31–60 dias',color:'#f97316',players:list.filter(function(p){return p.daysSinceLogin>30&&p.daysSinceLogin<=60;})},
+    {label:'> 60 dias', color:'#ef4444',players:list.filter(function(p){return p.daysSinceLogin>60;})}
+  ];
+  var bCards='<div class="g3 mb14">'+buckets.map(function(b){
+    var dep=b.players.reduce(function(a,p){return a+p.deps;},0);
+    return '<div class="card" style="border-color:'+b.color+'30"><div class="clabel" style="color:'+b.color+'">'+ESC(b.label)+'</div><div style="font-size:26px;font-weight:800;color:'+b.color+'">'+b.players.length+'</div><div style="font-size:10px;color:#475569;margin-top:3px">'+BRL(dep)+'</div></div>';
+  }).join('')+'</div>';
+  var rows=list.map(function(p){
+    var s=SEGS[p.segment]||SEGS.unregistered;
+    var bc=p.daysSinceLogin>60?'#ef4444':p.daysSinceLogin>30?'#f97316':'#f59e0b';
+    return '<tr class="tr-click" data-pl="'+ESC(p.email)+'"><td><div style="font-weight:600;color:#f1f5f9">'+ESC(p.fullName||p.email.split('@')[0])+'</div>'+(p.fullName?'<div style="font-size:9px;color:#475569">'+ESC(p.email)+'</div>':'')+'<div style="font-size:8px;color:#334155">'+ESC(p.refCode)+'</div></td><td>'+badge(s.icon+' '+s.label,s.color)+'</td><td style="color:#22c55e;font-weight:700">'+BRL(p.deps)+'</td><td style="color:'+GC(p.casinoGGR)+';font-weight:700">'+(p.casinoGGR>=0?'+':'−')+BRL(Math.abs(p.casinoGGR))+'</td><td style="font-weight:700;color:'+bc+'">'+(p.daysSinceLogin<999?p.daysSinceLogin+'d':'—')+'</td><td style="color:#64748b;font-size:10px">'+(p.lastSignIn||p.lastSeen||'—').slice(0,10)+'</td><td>'+(p.crm?badge(p.crm.label,p.crm.color):'—')+'</td></tr>';
+  }).join('');
+  document.getElementById('main').innerHTML=
+  '<div><div class="sec-head"><div class="sec-tag" style="color:#f97316">Retenção de Players</div><div class="sec-h">Churn Detection</div></div>'+
+  '<div class="g4 mb14">'+kpiBox('Em Churn',String(list.length),'Login > 14 dias + depósito','#ef4444')+kpiBox('Valor em Risco',BRL(lostVal),'Depósitos históricos','#f97316',USD(lostVal))+kpiBox('Média de Ausência',avgDays+'d','','#f59e0b')+kpiBox('Whale + High Value',String(highRisk),'alto valor em risco','#ef4444')+'</div>'+
+  bCards+
+  '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><span class="clabel" style="margin:0">Players em Risco ('+list.length+')</span><button class="btn-export" id="churn-export">↓ CSV</button></div><div class="tbl-wrap"><table><thead><tr><th>Jogador</th><th>Segmento</th><th>Depósitos</th><th>Casino GGR</th><th>Ausente há</th><th>Último Login</th><th>Ação CRM</th></tr></thead><tbody>'+rows+'</tbody></table></div></div></div>';
+}
+
+// ── COHORT ───────────────────────────────────────────────
+function renderCohort(){
+  var d=S.data,cohorts=d.cohorts;
+  function cc(pct){
+    if(pct===null||isNaN(pct))return '<td style="color:#334155;text-align:center">—</td>';
+    var bg=pct>50?'rgba(34,197,94,0.2)':pct>20?'rgba(245,158,11,0.15)':'rgba(239,68,68,0.12)';
+    var c=pct>50?'#22c55e':pct>20?'#f59e0b':'#ef4444';
+    return '<td style="text-align:center"><span class="coh-cell" style="background:'+bg+';color:'+c+'">'+PCT(pct)+'</span></td>';
+  }
+  var rows=cohorts.map(function(c){
+    var d1=c.total>0?c.d1/c.total*100:null,d7=c.total>0?c.d7/c.total*100:null,d30=c.total>0?c.d30/c.total*100:null;
+    return '<tr><td style="font-weight:700;color:#38bdf8">'+ESC(c.month)+'</td><td style="text-align:center;font-weight:600">'+c.total+'</td>'+cc(d1)+cc(d7)+cc(d30)+'<td style="color:#22c55e">'+BRL(c.dep)+'</td><td style="color:#64748b">'+(c.total>0?BRL(c.dep/c.total):'—')+'</td></tr>';
+  }).join('');
+  var aD1=cohorts.length?cohorts.reduce(function(a,c){return a+(c.total>0?c.d1/c.total*100:0);},0)/cohorts.length:0;
+  var aD7=cohorts.length?cohorts.reduce(function(a,c){return a+(c.total>0?c.d7/c.total*100:0);},0)/cohorts.length:0;
+  var aD30=cohorts.length?cohorts.reduce(function(a,c){return a+(c.total>0?c.d30/c.total*100:0);},0)/cohorts.length:0;
+  document.getElementById('main').innerHTML=
+  '<div><div class="sec-head"><div class="sec-tag" style="color:#38bdf8">Análise de Retenção</div><div class="sec-h">Cohort Analysis</div></div>'+
+  '<div class="g4 mb14">'+kpiBox('Retenção D1',PCT(aD1),'% com atividade no 1º dia',aD1>30?'#22c55e':'#ef4444')+kpiBox('Retenção D7',PCT(aD7),'% com atividade em 7 dias',aD7>20?'#22c55e':'#f59e0b')+kpiBox('Retenção D30',PCT(aD30),'% com atividade em 30 dias',aD30>10?'#22c55e':'#ef4444')+kpiBox('Coortes',String(cohorts.length),'por mês de cadastro','#a855f7')+'</div>'+
+  '<div class="card"><div class="clabel">Retenção por Mês de Cadastro</div><div style="font-size:10px;color:#475569;margin-bottom:12px">D1/D7/D30 = % de cadastros com transação dentro do período</div><div class="tbl-wrap"><table><thead><tr><th>Mês</th><th style="text-align:center">Cadastros</th><th style="text-align:center">D1</th><th style="text-align:center">D7</th><th style="text-align:center">D30</th><th>Depósitos</th><th>Dep/Cad.</th></tr></thead><tbody>'+rows+'</tbody></table></div></div></div>';
+}
+
+// ── RISCO ────────────────────────────────────────────────
+function renderRisk(){
+  var d=S.data;
+  var suspects=d.players.filter(function(p){return p.risk>0;}).sort(function(a,b){return b.risk-a.risk||b.deps-a.deps;});
+  var anomGames=d.games.filter(function(g){return g.rtp>110&&g.stake>1000;}).sort(function(a,b){return b.rtp-a.rtp;});
+  var fCards='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px">'+
+    Object.keys(FMAP).map(function(k){
+      var f=FMAP[k],cnt=d.players.filter(function(p){return p.flags.indexOf(k)>-1;}).length;
+      return '<div class="flag-card" style="background:'+f.color+'0a;border:1px solid '+f.color+'20"><div style="font-size:9px;color:'+f.color+';text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:4px">'+ESC(f.label)+'</div><div style="font-size:24px;font-weight:800;color:'+f.color+'">'+cnt+'</div></div>';
+    }).join('')+'</div>';
+  var anomHtml='';
+  if(anomGames.length){
+    anomHtml='<div class="card mb14" style="border-color:rgba(239,68,68,0.25)"><div class="clabel" style="color:#ef4444">🎮 Jogos com RTP Anômalo (> 110%)</div><div class="tbl-wrap"><table><thead><tr><th>Jogo</th><th>Provider</th><th>RTP</th><th>Stake</th><th>Perda Casa</th><th>Players</th><th>Rounds</th></tr></thead><tbody>'+
+    anomGames.map(function(g){return '<tr><td style="font-weight:700;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+ESC(g.name)+'</td><td style="color:#64748b">'+ESC(g.prov||'—')+'</td><td style="color:#ef4444;font-weight:800;font-size:13px">'+PCT(g.rtp)+'</td><td>'+BRL(g.stake)+'</td><td style="color:#ef4444;font-weight:700">−'+BRL(Math.abs(g.ggr))+'</td><td>'+g.users+'</td><td style="color:#64748b">'+g.cnt.toLocaleString()+'</td></tr>';}).join('')+
+    '</tbody></table></div></div>';
+  }
+  var rows=suspects.map(function(p){
+    return '<tr class="tr-click" data-pl="'+ESC(p.email)+'"><td><div style="font-weight:600;color:#f1f5f9">'+ESC(p.fullName||p.email.split('@')[0])+'</div>'+(p.fullName?'<div style="font-size:9px;color:#475569">'+ESC(p.email)+'</div>':'')+'</td><td style="color:#38bdf8">'+ESC(p.refCode)+'</td><td style="color:#22c55e;font-weight:700">'+BRL(p.deps)+'</td><td style="color:'+GC(p.casinoGGR)+';font-weight:700">'+(p.casinoGGR>=0?'+':'−')+BRL(Math.abs(p.casinoGGR))+'</td><td style="color:'+(p.rtp>120?'#ef4444':p.rtp>105?'#f97316':'#94a3b8')+'">'+(p.betsStake>0?PCT(p.rtp):'—')+'</td><td>'+p.flags.map(function(f){var fd=FMAP[f]||{label:f,color:'#94a3b8'};return badge(fd.label,fd.color);}).join(' ')+'</td></tr>';
+  }).join('');
+  document.getElementById('main').innerHTML=
+  '<div><div class="sec-head"><div class="sec-tag" style="color:#ef4444">Detecção Automática</div><div class="sec-h">Risco & Fraude</div></div>'+
+  fCards+anomHtml+
+  '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><span class="clabel" style="margin:0">Players com Alertas ('+suspects.length+')</span><button class="btn-export" id="risk-export">↓ CSV</button></div><div class="tbl-wrap"><table><thead><tr><th>Player</th><th>Canal</th><th>Depósitos</th><th>Casino GGR</th><th>RTP Bets</th><th>Flags</th></tr></thead><tbody>'+rows+'</tbody></table></div></div></div>';
+}
+
+// ── JOGOS ────────────────────────────────────────────────
+function renderGames(){
+  var d=S.data,games=d.games,provs=d.providers;
+  if(!games.length){document.getElementById('main').innerHTML='<div style="padding:40px;text-align:center;color:#475569">Carregue o arquivo de Bets para ver jogos.</div>';return;}
+  var list=games.filter(function(g){return !GS.search||g.name.toLowerCase().indexOf(GS.search.toLowerCase())>-1;}).sort(function(a,b){return ((b[GS.sort]||0)-(a[GS.sort]||0))*GS.dir;});
+  function sg(k,lbl){var cls='sort'+(GS.sort===k?(GS.dir===-1?' desc':' asc'):'');return '<th class="'+cls+'" data-gs="'+k+'">'+lbl+'</th>';}
+  var provPie=provs.slice(0,7).map(function(p,i){return {name:p.name,value:p.stake,color:PC[i%PC.length]};});
+  var gRows=list.map(function(g){
+    var rc=g.rtp>120?'#ef4444':g.rtp>110?'#f97316':g.rtp>100?'#f59e0b':'#22c55e';
+    return '<tr><td style="font-weight:600;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+ESC(g.name)+'</td><td style="color:#64748b;font-size:10px">'+ESC(g.prov||'—')+'</td><td style="color:#a855f7;font-weight:600">'+BRL(g.stake)+'</td><td style="color:'+GC(g.ggr)+';font-weight:700">'+(g.ggr>=0?'+':'−')+BRL(Math.abs(g.ggr))+'</td><td style="color:'+rc+';font-weight:700">'+PCT(g.rtp)+'</td><td style="color:#64748b">'+g.users+'</td><td style="color:#334155">'+g.cnt.toLocaleString()+'</td><td>'+(g.flags.length?badge('⚠ Verificar','#ef4444'):'<span style="color:#334155;font-size:9px">—</span>')+'</td></tr>';
+  }).join('');
+  var pRows=provs.map(function(p,i){
+    var rc=p.rtp>110?'#ef4444':p.rtp>100?'#f97316':'#22c55e';
+    return '<tr style="background:'+(i%2?'rgba(255,255,255,0.012)':'transparent')+'"><td style="font-weight:700;color:#a855f7">'+ESC(p.name)+'</td><td style="color:#a855f7;font-weight:600">'+BRL(p.stake)+'</td><td style="color:'+GC(p.ggr)+';font-weight:700">'+(p.ggr>=0?'+':'−')+BRL(Math.abs(p.ggr))+'</td><td style="color:'+rc+';font-weight:700">'+PCT(p.rtp)+'</td><td style="color:#64748b">'+p.games+'</td><td style="color:#334155">'+p.cnt.toLocaleString()+'</td></tr>';
+  }).join('');
+  var topGGR=games.slice().sort(function(a,b){return b.ggr-a.ggr;}).slice(0,8).map(function(g){return {name:g.name.slice(0,12),ggr:g.ggr};});
+  document.getElementById('main').innerHTML=
+  '<div><div class="sec-head"><div class="sec-tag" style="color:#a855f7">Inteligência de Jogos</div><div class="sec-h">Games & Providers</div></div>'+
+  '<div class="g4 mb14">'+kpiBox('Total Apostado',BRL(d.tBetsStake),games.reduce(function(a,g){return a+g.cnt;},0).toLocaleString()+' rounds','#a855f7',USD(d.tBetsStake))+kpiBox('Casino GGR',BRL(d.tCasinoGGR),'Bet−BetRev−Win−FreeSpinWin',GC(d.tCasinoGGR),USD(d.tCasinoGGR))+kpiBox('Jogos Únicos',String(games.length),provs.length+' providers','#38bdf8')+kpiBox('RTP Anômalo',String(games.filter(function(g){return g.rtp>110&&g.stake>1000;}).length),'> 110% vol > R$1k','#ef4444')+'</div>'+
+  '<div class="g-ac mb14"><div class="card"><div class="clabel">Top 8 Jogos por GGR Casa</div><div style="width:100%"><canvas id="c-gggr" height="200"></canvas></div></div><div class="card"><div class="clabel">Volume por Provider</div><div style="display:flex;justify-content:center"><canvas id="c-prov" width="200" height="180"></canvas></div><div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:8px">'+provPie.map(function(p,i){return '<div style="display:flex;align-items:center;gap:4px;font-size:9px"><div style="width:6px;height:6px;border-radius:50%;background:'+PC[i%PC.length]+'"></div><span style="color:#64748b">'+ESC(p.name)+'</span></div>';}).join('')+'</div></div></div>'+
+  '<div class="frow"><button id="gv-games" style="padding:5px 14px;border-radius:6px;border:1px solid '+(GS.view==='games'?'#a855f7':'rgba(255,255,255,0.1)')+';background:'+(GS.view==='games'?'rgba(168,85,247,0.1)':'transparent')+';color:'+(GS.view==='games'?'#a855f7':'#475569')+';font-size:10px;cursor:pointer">Todos os Jogos</button><button id="gv-provs" style="padding:5px 14px;border-radius:6px;border:1px solid '+(GS.view==='providers'?'#a855f7':'rgba(255,255,255,0.1)')+';background:'+(GS.view==='providers'?'rgba(168,85,247,0.1)':'transparent')+';color:'+(GS.view==='providers'?'#a855f7':'#475569')+';font-size:10px;cursor:pointer">Providers</button>'+(GS.view==='games'?'<input class="finput" id="g-search" placeholder="🔍 Filtrar jogo…" value="'+ESC(GS.search)+'" style="margin-left:auto">':'')+'</div>'+
+  (GS.view==='games'
+    ?'<div class="card"><div class="tbl-wrap"><table><thead><tr>'+sg('name','Jogo')+'<th>Provider</th>'+sg('stake','Stake')+sg('ggr','GGR Casa')+sg('rtp','RTP')+sg('users','Players')+sg('cnt','Rounds')+'<th>Alerta</th></tr></thead><tbody>'+gRows+'</tbody></table></div></div>'
+    :'<div class="card"><div class="tbl-wrap"><table><thead><tr><th>Provider</th><th>Stake</th><th>GGR</th><th>RTP</th><th>Jogos</th><th>Rounds</th></tr></thead><tbody>'+pRows+'</tbody></table></div></div>'
+  )+'</div>';
+  sched(function(){drawBar('c-gggr',topGGR,'ggr',function(v){return v>=0?'#22c55e':'#ef4444';});drawPie('c-prov',provPie);});
+}
+
+// ── CADASTROS ────────────────────────────────────────────
+function renderUsers(){
+  var d=S.data,rs=d.regStats;
+  if(!rs){document.getElementById('main').innerHTML='<div style="padding:40px;text-align:center;color:#475569">Carregue a planilha de Usuários.</div>';return;}
+  var VC={Verified:'#22c55e',PartlyVerified:'#f59e0b',NotVerified:'#ef4444'};
+  var filtered=rs.users.filter(function(u){
+    var q=CAS.search.toLowerCase();
+    if(q&&u.email.toLowerCase().indexOf(q)===-1&&(u.fullName||'').toLowerCase().indexOf(q)===-1)return false;
+    if(CAS.chan!=='ALL'&&u.refCode!==CAS.chan)return false;
+    return true;
+  });
+  var chanPie=rs.chanStats.slice(0,8).map(function(c,i){return{name:c.name,value:c.total,color:PC[i%PC.length]};});
+  var verPie=Object.keys(rs.verCnts||{}).map(function(k){return{name:k,value:rs.verCnts[k],color:VC[k]||'#64748b'};});
+  var cRows=rs.chanStats.map(function(c,i){
+    return '<tr style="background:'+(i%2?'rgba(255,255,255,0.012)':'transparent')+'"><td style="color:#38bdf8;font-weight:700">'+ESC(c.name)+'</td><td style="text-align:center">'+c.total+'</td><td style="text-align:center;color:#22c55e;font-weight:600">'+c.ftd+'</td><td style="text-align:center;color:'+(c.conv>20?'#22c55e':c.conv>5?'#f59e0b':'#ef4444')+';font-weight:700">'+PCT(c.conv)+'</td><td style="color:#f59e0b">'+(c.ftd>0?BRL(c.avgFTD):'—')+'</td><td style="color:#ef4444;text-align:center">'+c.deact+'</td></tr>';
+  }).join('');
+  var uRows=filtered.map(function(u){
+    var tp=d.players.find(function(p){return p.email===u.email;});
+    var lsi=u.lastSignIn?parseDate(u.lastSignIn):null;
+    var lsiAge=lsi?daysBetween(lsi,TODAY):null;
+    var lc=lsiAge!==null?(lsiAge>30?'#ef4444':lsiAge>14?'#f59e0b':'#22c55e'):'#475569';
+    return '<tr class="tr-click" data-pl="'+ESC(u.email)+'"><td style="font-weight:600;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+ESC(u.fullName||'—')+'</td><td style="color:#64748b;font-size:10px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+ESC(u.email)+'</td><td style="color:#38bdf8">'+ESC(u.refCode||'—')+'</td><td>'+badge(u.status||'—',u.status==='Active'?'#22c55e':u.status==='Deactivated'?'#ef4444':'#f59e0b')+'</td><td style="color:#64748b;font-size:10px">'+(u.registrationDate?u.registrationDate.slice(0,10):'—')+'</td><td style="color:'+lc+';font-weight:600">'+(lsiAge!==null?lsiAge+'d':'—')+'</td><td>'+badge(u.verification||'—',VC[u.verification]||'#64748b')+'</td><td style="color:#f59e0b">'+(tp&&tp.hasFTD?BRL(tp.firstDepAmt):'<span style="color:#334155">—</span>')+'</td><td style="color:#22c55e;font-weight:700">'+(u.mainBalance>0?BRL(u.mainBalance):'<span style="color:#334155">0</span>')+'</td><td>'+(tp?badge((tp.casinoGGR>=0?'+':'−')+BRL(Math.abs(tp.casinoGGR)),GC(tp.casinoGGR)):'<span style="color:#334155;font-size:9px">sem txn</span>')+'</td></tr>';
+  }).join('');
+  document.getElementById('main').innerHTML=
+  '<div><div class="sec-head"><div class="sec-tag" style="color:#22c55e">Base de Usuários</div><div class="sec-h">Cadastros & Conversão</div></div>'+
+  '<div class="g4 mb14">'+kpiBox('Total Cadastros',String(rs.total),'','#a855f7')+kpiBox('Com FTD',String(rs.ftd),PCT(rs.conv)+' conversão','#22c55e')+kpiBox('Sem Depósito',String(rs.noFtd),'potencial','#f59e0b')+kpiBox('Desativados',String(rs.deact),'','#ef4444')+'</div>'+
+  '<div class="g-ac mb14"><div class="card"><div class="clabel">Conversão por Canal</div><div class="tbl-wrap"><table><thead><tr><th>Canal</th><th>Cadastros</th><th>FTD</th><th>Conv%</th><th>FTD Médio</th><th>Desativos</th></tr></thead><tbody>'+cRows+'</tbody></table></div></div><div class="card"><div class="clabel">Por Canal</div><div style="display:flex;justify-content:center"><canvas id="c-regpie" width="180" height="150"></canvas></div><div class="clabel" style="margin-top:12px">Verificação KYC</div><div style="display:flex;justify-content:center"><canvas id="c-verpie" width="180" height="110"></canvas></div></div></div>'+
+  '<div class="frow"><input class="finput" id="cs-search" placeholder="🔍 Nome ou e-mail…" value="'+ESC(CAS.search)+'"><select class="fselect" id="cs-chan"><option value="ALL">Todos os canais</option>'+rs.chanStats.map(function(c){return '<option value="'+ESC(c.name)+'"'+(CAS.chan===c.name?' selected':'')+'>'+ESC(c.name)+'</option>';}).join('')+'</select><button class="btn-export" id="users-export">↓ CSV</button><span class="fcount" style="margin-left:auto">'+filtered.length+' usuários</span></div>'+
+  '<div class="card"><div class="tbl-wrap"><table><thead><tr><th>Nome</th><th>E-mail</th><th>Canal</th><th>Status</th><th>Cadastro</th><th>Último Login</th><th>KYC</th><th>1º Dep.</th><th>Saldo</th><th>Casino GGR</th></tr></thead><tbody>'+uRows+'</tbody></table></div></div></div>';
+  sched(function(){drawPie('c-regpie',chanPie);drawPie('c-verpie',verPie);});
+}
+
+// ── CHAT ─────────────────────────────────────────────────
+function renderChat(){
+  var d=S.data;
+  var ctx=d?[
+    'Contexto: Cohorix iGaming Intelligence | Data: 11/03/2026',
+    'Casino GGR (Bet−BetRev−Win−FreeSpinWin): '+BRL(d.tCasinoGGR),
+    'NGR (Casino GGR − WagerBonusRedeem): '+BRL(d.tNGR),
+    'Depósitos: '+BRL(d.tDeps)+' | '+d.tDepCnt+' txns',
+    'Saque Efetivo (Withdrawals−RefundRejected): '+BRL(d.tWithsEff),
+    'W/D Ratio: '+PCT(d.wdRatio*100),
+    'Volume Apostas: '+BRL(d.tBetsStake)+' | RTP: '+PCT(d.tBetsStake>0?d.tBetsWin/d.tBetsStake*100:0),
+    'Custo Gateway: '+BRL(d.gatewayCost),
+    (S.usdRate?'USD Rate BCB: 1 USD = R$ '+S.usdRate.toFixed(2):''),
+    'Total players (excl. TEST): '+d.players.length,
+    'Depositantes: '+d.players.filter(function(p){return p.deps>0;}).length,
+    'Em churn (>14d inativo): '+d.players.filter(function(p){return p.isChurn;}).length,
+    'Alertas risco: '+d.fraud.length,
+    'Whales: '+d.players.filter(function(p){return p.segment==='whale';}).length,
+    'Top canais: '+d.channels.slice(0,5).map(function(c){return c.name+'(dep:'+BRL(c.deps)+' GGR:'+BRL(c.cGGR)+')';}).join(' | '),
+    'Top jogos: '+d.games.slice(0,5).map(function(g){return g.name+'(RTP:'+PCT(g.rtp)+')';}).join(', ')
+  ].filter(Boolean).join('\n'):'Nenhum dado carregado.';
+
+  document.getElementById('main').innerHTML=
+  '<div><div class="sec-head"><div class="sec-tag" style="color:#38bdf8">Assistente Inteligente</div><div class="sec-h">💬 Perguntar sobre os Dados</div></div>'+
+  '<div id="chat-wrap">'+
+    '<div id="chat-msgs">'+
+      '<div class="chat-msg chat-bot">Olá! Analiso os dados carregados e respondo em português. Pergunte sobre GGR, players, campanhas, risco ou churn.</div>'+
+      chatHistory.map(function(m){return '<div class="chat-msg '+(m.role==='user'?'chat-user':'chat-bot')+'">'+ESC(m.content).replace(/\n/g,'<br>')+'</div>';}).join('')+
+    '</div>'+
+    '<div id="chat-input-row"><textarea id="chat-input" placeholder="Ex: Qual canal tem melhor GGR? Quem são os players em churn de alto valor?"></textarea><button id="chat-send">Enviar</button></div>'+
+  '</div></div>';
+
+  var msgs=document.getElementById('chat-msgs');msgs.scrollTop=msgs.scrollHeight;
+  document.getElementById('chat-send').addEventListener('click',function(){sendChat(ctx);});
+  document.getElementById('chat-input').addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat(ctx);}});
+}
+
+function sendChat(ctx){
+  var input=document.getElementById('chat-input');
+  var msg=input.value.trim();if(!msg)return;
+  input.value='';
+  chatHistory.push({role:'user',content:msg});
+  var msgs=document.getElementById('chat-msgs');
+  var uDiv=document.createElement('div');uDiv.className='chat-msg chat-user';uDiv.textContent=msg;msgs.appendChild(uDiv);
+  var tDiv=document.createElement('div');tDiv.className='chat-msg chat-bot';tDiv.style.color='#475569';tDiv.textContent='Analisando…';msgs.appendChild(tDiv);
+  msgs.scrollTop=msgs.scrollHeight;
+  var btn=document.getElementById('chat-send');if(btn)btn.disabled=true;
+  var apiMsgs=[{role:'user',content:'Contexto dos dados:\n'+ctx+'\n\nResponda em português, conciso. Pergunta: '+msg}];
+  if(chatHistory.length>2){
+    apiMsgs=[{role:'user',content:'Contexto:\n'+ctx}];
+    chatHistory.slice(-7,-1).forEach(function(m){apiMsgs.push({role:m.role,content:m.content});});
+    apiMsgs.push({role:'user',content:msg});
+  }
+  fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:apiMsgs})
+  }).then(function(r){return r.json();}).then(function(j){
+    var reply=(j.content&&j.content[0]&&j.content[0].text)||'Erro ao processar.';
+    chatHistory.push({role:'assistant',content:reply});
+    tDiv.style.color='';tDiv.innerHTML=ESC(reply).replace(/\n/g,'<br>');
+    msgs.scrollTop=msgs.scrollHeight;if(btn)btn.disabled=false;
+  }).catch(function(err){tDiv.style.color='#ef4444';tDiv.textContent='Erro: '+err.message;if(btn)btn.disabled=false;});
+}
+
+// ── EXTRAS event delegation ──────────────────────────────
+document.getElementById('main').addEventListener('click',function(e){
+  var gs=e.target.closest('[data-gs]');
+  if(gs){var k=gs.dataset.gs;if(GS.sort===k)GS.dir=-GS.dir;else{GS.sort=k;GS.dir=-1;}renderGames();return;}
+  if(e.target.id==='gv-games'){GS.view='games';renderGames();return;}
+  if(e.target.id==='gv-provs'){GS.view='providers';renderGames();return;}
+  if(e.target.id==='churn-export'&&S.data){exportPlayers(S.data.players.filter(function(p){return p.isChurn&&!p.deactivated;}));return;}
+  if(e.target.id==='risk-export'&&S.data){exportPlayers(S.data.fraud);return;}
+  if(e.target.id==='users-export'&&S.data&&S.data.regStats){
+    var rf=S.data.regStats.users.filter(function(u){
+      var q=CAS.search.toLowerCase();
+      if(q&&u.email.toLowerCase().indexOf(q)===-1)return false;
+      if(CAS.chan!=='ALL'&&u.refCode!==CAS.chan)return false;
+      return true;
+    });
+    exportCSV(rf.map(function(u){return{email:u.email,nome:u.fullName,canal:u.refCode,status:u.status,cadastro:u.registrationDate,ultimo_login:u.lastSignIn,verificacao:u.verification,desativacao:u.deactivationDate||''};}), 'cohorix_usuarios.csv');
+    return;
+  }
+},true);
+
+document.body.addEventListener('input',function(e){
+  if(e.target.id==='g-search'){GS.search=e.target.value;renderGames();}
+  if(e.target.id==='cs-search'){CAS.search=e.target.value;renderUsers();}
+});
+document.body.addEventListener('change',function(e){
+  if(e.target.id==='cs-chan'){CAS.chan=e.target.value;renderUsers();}
+});
+
+// ── MODAL ────────────────────────────────────────────────
+var TCOL={Win:'#22c55e',Bet:'#f59e0b',Deposit:'#38bdf8',Withdrawal:'#ef4444',WagerBonusRedeem:'#a855f7',FreeSpinWin:'#a855f7',BetReverse:'#475569',WinReverse:'#475569',RefundRejectedWithdraw:'#f97316'};
+var VC3={Verified:'#22c55e',PartlyVerified:'#f59e0b',NotVerified:'#ef4444'};
+
+function openModal(email){
+  var d=S.data;
+  var p=d.players.find(function(x){return x.email===email;});
+  var u=d.regStats&&d.regStats.users.find(function(x){return x.email===email;});
+  if(!p&&u){p={email:email,fullName:u.fullName||'',refCode:u.refCode||'—',status:u.status||'',verification:u.verification||'',mainBalance:u.mainBalance||0,registrationDate:u.registrationDate||'',lastSignIn:u.lastSignIn||'',deactivationDate:u.deactivationDate||'',segment:'registered_no_dep',deps:0,withsEff:0,casinoGGR:0,ngr:0,margin:0,wdr:0,ticket:0,betsStake:0,betsWin:0,rtp:0,wbr:0,flags:[],risk:0,crm:{type:'ftd_bonus',label:'🎁 Bônus 1º Depósito',color:'#22c55e'},daysSinceLogin:999,txns:[]};}
+  if(!p)return;
+  var s=SEGS[p.segment]||SEGS.unregistered;
+  var txns=(p.txns||[]).slice().sort(function(a,b){return(b.date||'')>(a.date||'')?1:-1;}).slice(0,50);
+  function kp(l,v,c,uu){return '<div class="kp"><div class="kl">'+ESC(l)+'</div><div class="kv" style="color:'+c+'">'+ESC(String(v))+'</div>'+(uu&&S.usdRate?'<div class="ku">'+ESC(uu)+'</div>':'')+'</div>';}
+
+  var html='<div class="m-head"><div>'+
+    '<div class="m-name">'+ESC(p.fullName||p.email.split('@')[0])+'</div>'+
+    '<div class="m-email">'+ESC(p.email)+'</div>'+
+    '<div style="display:flex;gap:4px;flex-wrap:wrap">'+
+      badge(s.icon+' '+s.label,s.color)+' '+badge(p.refCode||'—','#38bdf8')+' '+
+      (p.verification?badge(p.verification,VC3[p.verification]||'#94a3b8')+' ':'')+
+      (p.status?badge(p.status,p.status==='Active'?'#22c55e':p.status==='Deactivated'?'#ef4444':'#f59e0b')+' ':'')+
+      p.flags.map(function(f){var fd=FMAP[f]||{label:f,color:'#94a3b8'};return badge(fd.label,fd.color)+' ';}).join('')+
+    '</div>'+
+  '</div><button class="m-close" id="m-close">✕</button></div>';
+
+  html+='<div class="m-sec">Performance Financeira</div>'+
+    '<div class="kpi4">'+kp('Depósitos',BRL(p.deps),'#22c55e',USD(p.deps))+kp('Saque Efetivo',BRL(p.withsEff),'#94a3b8',USD(p.withsEff))+kp('Casino GGR',(p.casinoGGR>=0?'+':'−')+BRL(Math.abs(p.casinoGGR)),GC(p.casinoGGR),USD(p.casinoGGR))+kp('NGR',(p.ngr>=0?'+':'−')+BRL(Math.abs(p.ngr)),GC(p.ngr))+'</div>'+
+    '<div class="kpi4" style="margin-top:6px">'+kp('Ticket Médio',BRL(p.ticket||0),'#f59e0b')+kp('W/D Ratio',PCT((p.wdr||0)*100),p.wdr<=1?'#22c55e':'#ef4444')+kp('Nº Depósitos',String(p.depCnt||0)+'×','#94a3b8')+kp('WagerBonusRedeem',BRL(p.wbr||0),'#a855f7')+'</div>';
+
+  if(p.betsStake>0){
+    html+='<div class="m-sec" style="color:#a855f7">Performance de Apostas</div>'+
+      '<div class="kpi4">'+kp('Total Apostado',BRL(p.betsStake),'#a855f7',USD(p.betsStake))+kp('GGR Bets',(p.betsStake-p.betsWin>=0?'+':'−')+BRL(Math.abs(p.betsStake-p.betsWin)),GC(p.betsStake-p.betsWin))+kp('RTP',PCT(p.rtp),p.rtp>120?'#ef4444':p.rtp>105?'#f97316':'#22c55e')+kp('Jogos Únicos',String(p.gameCnt||0),'#38bdf8')+'</div>';
+  }
+
+  if(p.crm){html+='<div class="crm-box" style="background:'+p.crm.color+'0e;border:1px solid '+p.crm.color+'28"><div style="font-size:8.5px;color:'+p.crm.color+';text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-bottom:3px">Ação CRM Sugerida</div><div style="font-size:14px;font-weight:700;color:'+p.crm.color+'">'+ESC(p.crm.label)+'</div><div style="font-size:10px;color:#64748b;margin-top:2px">Inativo há '+(p.daysSinceLogin<999?p.daysSinceLogin+' dias':'—')+' · '+ESC(s.label)+'</div></div>';}
+
+  if(p.lastSignIn||p.registrationDate){html+='<div style="font-size:10px;color:#475569;margin-bottom:12px">'+(p.registrationDate?'Cadastro: '+ESC(p.registrationDate.slice(0,10))+' · ':'')+( p.lastSignIn?'Último Login: '+ESC(p.lastSignIn.slice(0,10)):'')+( p.deactivationDate?' · Desativado: '+ESC(p.deactivationDate.slice(0,10)):'')+'</div>';}
+
+  if(txns.length){html+='<div class="m-sec">Últimas '+txns.length+' Transações (Saldo Real)</div><div class="tbl-wrap"><table><thead><tr><th>Data</th><th>Tipo</th><th>Valor</th><th>Saldo Após</th></tr></thead><tbody>'+txns.map(function(t){return '<tr><td style="color:#64748b;font-size:10px">'+(t.date?t.date.slice(0,16):'')+'</td><td style="color:'+(TCOL[t.type]||'#94a3b8')+';font-weight:600">'+ESC(t.type)+'</td><td style="font-weight:600">'+BRL(t.amount)+'</td><td style="color:#475569">'+BRL(t.balAfter)+'</td></tr>';}).join('')+'</tbody></table></div>';}
+
+  document.getElementById('modal-inner').innerHTML=html;
+  document.getElementById('modal').classList.add('open');
+  document.getElementById('m-close').addEventListener('click',closeModal);
+}
+</script></body></html>
